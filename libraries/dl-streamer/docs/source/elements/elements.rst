@@ -68,8 +68,6 @@ Auxiliary plugins
    * - :doc:`gvametaaggregate <gvametaaggregate>`
      - Aggregates inference results from multiple pipeline branches.
 
-       *[eg syntax]* *gst-launch-1.0 ... ! decodebin3 ! tee name=t t. ! queue ! gvametaaggregate name=a ! gvaclassify ... ! gvaclassify ... ! gvametaconvert ... ! gvametapublish ... ! fakesink t. ! queue ! gvadetect ... ! a.*
-
    * - :doc:`gvametaconvert <gvametaconvert>`
      - Converts the metadata structure to JSON or raw text formats, can write output to a file.       
 
@@ -82,6 +80,11 @@ Auxiliary plugins
      - Provides a callback to execute user-defined Python functions on every frame, used to augment DLStreamer with user-defined algorithms (e.g. metadata conversion, inference post-processing).
 
        *[eg syntax]* *gst-launch-1.0 ... !  gvaclassify ! gvapython module={gvapython.callback_module.classAge_pp} ! ... OUT*
+
+   * - :doc:`gvarealsense <gvarealsense>`
+     - Provides integration with Intel RealSense cameras, enabling video and depth stream capture for use in GStreamer pipelines.
+
+       *[eg syntax]* *gst-launch-1.0 ... gvarealsense camera=/dev/video0 ! queue ! fakesink dump=true*
 
    * - :doc:`gvawatermark <gvawatermark>`
      - Overlays the metadata on the video frame to visualize the inference results.
@@ -100,9 +103,11 @@ Auxiliary plugins
    gvagenai
    gvaattachroi
    gvafpscounter
-   gvametaaggregate
    gvametaconvert
    gvametapublish
+   gvametaaggregate
    gvapython
+   gvarealsense
    gvawatermark
    gstelements
+   
