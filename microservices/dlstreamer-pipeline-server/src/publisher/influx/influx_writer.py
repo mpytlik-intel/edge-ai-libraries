@@ -64,7 +64,6 @@ class InfluxdbWriter():
         if not self.influx_client.bucket_exists(self.influx_bucket_name):
             self.log.error(f"Given bucket name - {self.influx_bucket_name} does NOT exist or server is inaccessible")
             self.initialized=False
-            self.log.error("InfluxDB initializion failed")
         else:
             self.initialized=True
             self.log.info("InfluxDB Writer initialized")
