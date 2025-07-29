@@ -56,15 +56,12 @@ class ModelRegistryClient:
         """
         self.is_ready = False
         try:
-            default_timeout = 300
-            request_timeout = os.getenv("MR_REQUEST_TIMEOUT", str(default_timeout))
-            try:
-                self._request_timeout = int(request_timeout)
-            except ValueError:
-                self._request_timeout = self._get_env_var_or_default_value(
-                    var_name="MR_REQUEST_TIMEOUT",
-                    default_value=default_timeout,
-                    use_default=True)
+            self._request_timeout = self._get_env_var_or_default_value(
+                var_name="MR_REQUEST_TIMEOUT",
+                default_value="")
+            if not self._request_timeout:
+                raise ValueError("Model Registry Client is not ready. "
+                "MR_REQUEST_TIMEOUT not set in .env")
 
             self._url = self._get_env_var_or_default_value(var_name="MR_URL",
                                                            default_value="")
@@ -76,7 +73,10 @@ class ModelRegistryClient:
 
             self._saved_models_dir = self._get_env_var_or_default_value(
                 var_name="MR_SAVED_MODELS_DIR",
-                default_value="./mr_models")
+                default_value="")
+            if not self._saved_models_dir:
+                raise ValueError("Model Registry Client is not ready. "
+                "MR_SAVED_MODELS_DIR not set in .env")
 
             if self._url:
                 self.is_ready = True
