@@ -28,8 +28,6 @@ class SmartNVRPipeline(GstPipeline):
             "shmsink socket-path=/tmp/shared_memory/video_stream "
             "wait-for-connection=false "
             "sync=true "
-            # "async=false "
-            # "shm-size=67108864 "
             "name=shmsink0 "
         )
 
@@ -39,7 +37,6 @@ class SmartNVRPipeline(GstPipeline):
             "  name=comp "
             "  {sinks} ! tee name=livetee "
             "livetee. ! queue2 ! {encoder} ! h264parse ! mp4mux ! filesink location={VIDEO_OUTPUT_PATH} async=false "
-            # Wymuś format BGR (zgodny z domyślnym shmsink i OpenCV)
             "livetee. ! queue2 ! videoconvert ! video/x-raw,format=BGR,width=640,height=360 ! {shmsink} "
         )
 

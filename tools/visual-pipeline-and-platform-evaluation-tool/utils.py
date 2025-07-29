@@ -1,5 +1,6 @@
 import subprocess
 import re
+import threading
 import time
 import os
 import random
@@ -15,6 +16,7 @@ import numpy as np
 import cv2
 import struct
 import mmap
+import contextlib
 
 
 
@@ -209,21 +211,16 @@ def read_latest_meta(meta_path):
     except Exception:
         return None
 
-def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", shm_prefix="shmpipe.video_stream", socket_path="/tmp/shared_memory/video_stream"):
+def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", shm_fd=None):
     meta = read_latest_meta(meta_path)
-    if not meta:
+    if not meta or shm_fd is None:
         return None
     height, width, dtype_size = meta
-    shm_file = find_shm_file(shm_prefix, socket_path=socket_path)
-    if not shm_file:
-        return None
-    shm_path = os.path.join("/dev/shm", shm_file)
     try:
         frame_size = height * width * 3 * dtype_size
-        with open(shm_path, "rb") as f:
-            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
-            buf = mm[:frame_size]
-            mm.close()
+        mm = mmap.mmap(shm_fd.fileno(), 0, access=mmap.ACCESS_READ)
+        buf = mm[:frame_size]
+        mm.close()
         if len(buf) != frame_size:
             return None
         frame_bgr = np.frombuffer(buf, dtype=np.uint8).reshape((height, width, 3))
@@ -286,6 +283,7 @@ def run_pipeline_and_extract_metrics(
             # Set the environment variable to enable all drivers
             env = os.environ.copy()
             env["GST_VA_ALL_DRIVERS"] = "1"
+            # env["GST_DEBUG"] = "3,compositor:6,identity:6"
 
             # Spawn command in a subprocess
             process = Popen(_pipeline.split(" "), stdout=PIPE, stderr=PIPE, env=env)
@@ -298,71 +296,139 @@ def run_pipeline_and_extract_metrics(
             channels = inference_channels + regular_channels
             avg_fps_dict = {}
             process_output = []
+            process_stderr = []
 
             # Define pattern to capture FPSCounter metrics
             overall_pattern = r"FpsCounter\(overall ([\d.]+)sec\): total=([\d.]+) fps, number-streams=(\d+), per-stream=([\d.]+) fps"
             avg_pattern = r"FpsCounter\(average ([\d.]+)sec\): total=([\d.]+) fps, number-streams=(\d+), per-stream=([\d.]+) fps"
             last_pattern = r"FpsCounter\(last ([\d.]+)sec\): total=([\d.]+) fps, number-streams=(\d+), per-stream=([\d.]+) fps"
 
-            if live_preview_enabled:
-                wait_time = 0
-                max_wait = 10
-                while not os.path.exists(meta_path) and wait_time < max_wait:
-                    time.sleep(0.5)
-                    wait_time += 0.5
+            stop_event = threading.Event()
+            shm_fd = None
 
-            frame_count = 0
-            last_yield_time = time.time()
-            # Poll the process to check if it is still running
-            while process.poll() is None:
-                if cancelled:
-                    process.terminate()
-                    cancelled = False
-                    break
+            def process_worker():
+                try:
+                    logger.info("Starting process worker thread")
+                    while not stop_event.is_set():
+                        reads, _, _ = select.select([process.stdout, process.stderr], [], [], poll_interval)
+                        for r in reads:
+                            line = r.readline()
+                            if not line:
+                                continue
+                            if r == process.stdout:
+                                process_output.append(line)
 
-                reads, _, _ = select.select([process.stdout], [], [], poll_interval)
-                for r in reads:
-                    line = r.readline()
-                    if not line:
-                        continue
-                    process_output.append(line)
+                                # Write the average FPS to the log
+                                line_str = line.decode("utf-8")
+                                match = re.search(avg_pattern, line_str)
+                                if match:
+                                    result = {
+                                        "total_fps": float(match.group(2)),
+                                        "number_streams": int(match.group(3)),
+                                        "per_stream_fps": float(match.group(4)),
+                                    }
+                                    logger.info(
+                                        f"Avg FPS: {result['total_fps']} fps; Num Streams: {result['number_streams']}; Per Stream FPS: {result['per_stream_fps']} fps."
+                                    )
 
-                    # Write the average FPS to the log
-                    line_str = line.decode("utf-8")
-                    match = re.search(avg_pattern, line_str)
-                    if match:
-                        result = {
-                            "total_fps": float(match.group(2)),
-                            "number_streams": int(match.group(3)),
-                            "per_stream_fps": float(match.group(4)),
-                        }
-                        logger.info(
-                            f"Avg FPS: {result['total_fps']} fps; Num Streams: {result['number_streams']}; Per Stream FPS: {result['per_stream_fps']} fps."
-                        )
+                                    # Skip the result if the number of streams does not match the expected channels
+                                    if result["number_streams"] != channels:
+                                        continue
 
-                        # Skip the result if the number of streams does not match the expected channels
-                        if result["number_streams"] != channels:
-                            continue
+                                    latest_fps = result["per_stream_fps"]
 
-                        latest_fps = result["per_stream_fps"]
-                        
-                        # Write latest FPS to a file
-                        with open("/home/dlstreamer/vippet/.collector-signals/fps.txt", "w") as f:
-                            f.write(f"{latest_fps}\n")
+                                    # Write latest FPS to a file
+                                    with open("/home/dlstreamer/vippet/.collector-signals/fps.txt", "w") as f:
+                                        f.write(f"{latest_fps}\n")
+                            elif r == process.stderr:
+                                process_stderr.append(line)
+                except Exception as e:
+                    logger.error(f"process_worker exception: {e}")
+                finally:
+                    logger.info("process_worker thread is stopping")
+
+            worker_thread = threading.Thread(target=process_worker, daemon=True)
+            worker_thread.start()
+
+            try:
                 if live_preview_enabled:
-                    t0 = time.time()
-                    frame = read_shared_memory_frame(meta_path=meta_path, shm_prefix=shm_prefix, socket_path=socket_path)
-                    t1 = time.time()
-                    frame_count += 1
-                    read_frame_time = t1 - t0
-                    time_since_last_yield = t1 - last_yield_time
-                    last_yield_time = t1
-                    logging.info(f"[live_preview_stream] Frame {frame_count}: read_shared_memory_frame took {read_frame_time:.4f}s, time since last yield: {time_since_last_yield:.4f}s")
-                    yield frame
-                    time.sleep(1.0 / 30.0)
-                if ps.Process(process.pid).status() == "zombie":
-                    exit_code = process.wait()
-                    break
+                    wait_time = 0
+                    max_wait = 10
+                    while not os.path.exists(meta_path) and wait_time < max_wait:
+                        time.sleep(0.5)
+                        wait_time += 0.5
+
+                    shm_file = None
+                    wait_time = 0
+                    while shm_file is None and wait_time < max_wait:
+                        shm_file = find_shm_file(shm_prefix, socket_path=socket_path)
+                        if shm_file is None:
+                            time.sleep(0.5)
+                            wait_time += 0.5
+
+                    if shm_file is None:
+                        logger.error(f"Could not find shm_file for live preview after {max_wait} seconds.")
+                        raise RuntimeError("Live preview shared memory file not found.")
+
+                    shm_path = os.path.join("/dev/shm", shm_file)
+                    shm_fd = open(shm_path, "rb")
+
+                    while True:
+                        # If process ended, break and close socket to let shmsink finish
+                        if process.poll() is not None:
+                            break
+
+                        frame = read_shared_memory_frame(meta_path=meta_path, shm_fd=shm_fd)
+                        yield frame
+                        time.sleep(1.0 / 30.0)
+
+                        # Handle interruption
+                        if cancelled:
+                            process.terminate()
+                            cancelled = False
+                            logger.info("Process cancelled, terminating")
+                            break
+
+                        # If process is zombie, break and close shm_fd
+                        if ps.Process(process.pid).status() == "zombie":
+                            exit_code = process.wait()
+                            logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                            break
+
+                    # After breaking out of the loop, CLOSE shm_fd to signal EOS to shmsink
+                    if shm_fd is not None:
+                        with contextlib.suppress(Exception):
+                            shm_fd.close()
+                        shm_fd = None
+
+                    # Wait for GStreamer process to end if not already
+                    try:
+                        if process.poll() is None:
+                            exit_code = process.wait(timeout=10)
+                    except Exception:
+                        logger.warning("Process did not exit cleanly after closing socket.")
+
+                else:
+                    # No live preview: just wait for process
+                    while process.poll() is None:
+                        if cancelled:
+                            process.terminate()
+                            cancelled = False
+                            logger.info("Process cancelled, terminating")
+                            break
+                        time.sleep(0.1)
+                        if ps.Process(process.pid).status() == "zombie":
+                            exit_code = process.wait()
+                            logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                            break
+
+            finally:
+                logger.info("Stopping frame worker thread")
+                stop_event.set()
+                worker_thread.join()
+                if shm_fd is not None:
+                    with contextlib.suppress(Exception):
+                        shm_fd.close()
 
             # Process the output and extract FPS metrics
             for line in process_output:
@@ -428,6 +494,8 @@ def run_pipeline_and_extract_metrics(
             logger.info("Total FPS is {}".format(total_fps))
             logger.info("Per Stream FPS is {}".format(per_stream_fps))
             logger.info("Num of Streams is {}".format(num_streams))
+            logger.info("Full process_output:\n" + "".join([line.decode("utf-8") for line in process_output]))
+            logger.info("Full process_stderr:\n" + "".join([line.decode("utf-8") for line in process_stderr]))
 
             # Save results
             results.append(

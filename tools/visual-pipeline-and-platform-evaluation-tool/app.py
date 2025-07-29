@@ -619,14 +619,9 @@ def on_run(data):
         elements=gst_inspector.get_elements(),
     )
 
-    last_yield_time = time.time()
     if live_preview_enabled:
         # Show live preview, hide video player while streaming frames
         for live_frame in optimizer.run_with_live_preview():
-            current_time = time.time()
-            time_since_last_yield = current_time - last_yield_time
-            last_yield_time = current_time
-            logging.info(f"[on_run] Time since last yield: {time_since_last_yield:.4f}s")
             yield [gr.update(value=live_frame, visible=True), gr.update(visible=False), None]
         # After streaming, hide live preview and show video player
         best_result = optimizer.evaluate()
