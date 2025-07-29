@@ -8,14 +8,15 @@ We need to update the pipeline key in `[WORKDIR]/edge-ai-libraries/microservices
 ```
 Add mqtt_publisher to the `properties` key in the `config.json` file as shown below:
 ```sh
-"mqtt_publisher": {
-                    "element": {
-                        "name": "mqtt_publisher",
-                        "property": "kwarg",
-                        "format": "json"
-                    },
-                    "type": "object"
-                }
+  "mqtt_publisher": {
+    "element": {
+      "name": "mqtt_publisher",
+      "property": "kwarg",
+      "format": "json"
+    },
+    "type": "object"
+  }
+
 ```
 
 
