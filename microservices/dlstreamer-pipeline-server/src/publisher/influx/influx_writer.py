@@ -45,7 +45,6 @@ class InfluxdbWriter():
         if not self.influx_bucket_name:
             self.log.error(f'Empty value given for bucket name. It cannot be blank')
             self.initialized=False
-            return
         if not self.host:
             self.log.error(f'Empty value given for INFLUXDB_HOST. It cannot be blank')
             self.initialized=False
