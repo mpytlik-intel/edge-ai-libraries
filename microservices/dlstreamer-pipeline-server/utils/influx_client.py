@@ -45,7 +45,7 @@ class InfluxClient():
             self.write_api.write(bucket=influx_bucket_name, org=self.influx_org, record=point)
             self.log.debug(f"Successfully wrote data in influx for image handle: {img_handle}")
         except urllib3.exceptions.NameResolutionError as e:
-            print("Unable to resolve InfluxDB hostname. Please verify that InfluxDB is running.")
+            self.log.exception("Unable to resolve InfluxDB hostname. Please verify that InfluxDB is running.")
         except Exception as e:
             self.log.exception(f"Error writing data to InfluxDB for image handle: {img_handle}", e)
 
