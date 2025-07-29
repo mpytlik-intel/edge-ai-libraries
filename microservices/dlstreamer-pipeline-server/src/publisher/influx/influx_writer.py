@@ -39,9 +39,13 @@ class InfluxdbWriter():
         self.influx_bucket_name = config.get("bucket")
         self.influx_measurement = config.get("measurement", "dlsps")
         self.influxwrite_complete = th.Event()
-
+        self.initialized=True
         self.th = None
         self.log = get_logger(f'{__name__} ({self.influx_bucket_name})')
+        if not self.influx_bucket_name:
+            self.log.error(f'Empty value given for bucket name. It cannot be blank')
+            self.initialized=False
+            return
         if not self.host:
             self.log.error(f'Empty value given for INFLUXDB_HOST. It cannot be blank')
             self.initialized=False
@@ -57,10 +61,17 @@ class InfluxdbWriter():
             self.log.error(f'Empty value given for INFLUXDB_USER and INFLUXDB_PASS. It cannot be blank')
             self.initialized=False
 
-        self.log.info(f'Initializing Influx Writer for bucket - {self.influx_bucket_name}')
-        self.influx_client = InfluxClient(self.host, self.port, self.org, self.username, self.password)
-        self.initialized=True
-        self.log.info("InfluxDB Writer initialized")
+        if self.initialized:
+            self.log.info(f'Initializing Influx Writer for bucket - {self.influx_bucket_name}')
+            self.influx_client = InfluxClient(self.host, self.port, self.org, self.username, self.password)
+            if not self.influx_client.bucket_exists(self.influx_bucket_name):
+                self.log.error(f"Given bucket name - {self.influx_bucket_name} does NOT exist or server is inaccessible")
+                self.initialized=False    # error state
+            else:
+                self.log.info("InfluxDB Writer initialized")
+        else:
+            self.log.error("InfluxDB initializion failed")
+
 
     def start(self):
         """Start publisher.
