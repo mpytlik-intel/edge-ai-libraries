@@ -19,6 +19,7 @@ spec:
     spec:
       securityContext:
         supplementalGroups: [109,110]
+        runAsNonRoot: true
       {{- if and $.Values.DOCKER_USERNAME $.Values.DOCKER_PASSWORD }}
       imagePullSecrets:
       - name: registryauth
@@ -29,7 +30,15 @@ spec:
         imagePullPolicy: {{ $.Values.imagePullPolicy }}
         {{- if $.Values.privileged_access_required }}
         securityContext:
-          privileged: true  # Required for direct access to /dev
+          privileged: true # Required for direct access to /dev
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+        {{- else }}
+        securityContext:
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
         {{- end }}
         {{- if $.Values.gpu.enabled }}
         resources:
@@ -71,6 +80,7 @@ spec:
           name: vol-pipeline-root-tmpfs0
         - name: dev
           mountPath: /dev
+          readOnly: true # Reduce risk while preserving access to GPU
         - name: dev-shm
           mountPath: /dev/shm
         - name: tmp
