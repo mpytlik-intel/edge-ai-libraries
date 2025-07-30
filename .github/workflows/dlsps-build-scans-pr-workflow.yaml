@@ -199,9 +199,9 @@ jobs:
     uses: ./.github/workflows/trivy-config-mode.yaml
     with:
       dockerfile-path: microservices/dlstreamer-pipeline-server/
-      trivy-report-format: 'json'
+      trivy-report-format: 'table'
       severity-levels: 'HIGH,CRITICAL'
-      output-report-path: reports/dlsps_trivy_config_report.json
+      output-report-path: reports/dlsps_trivy_config_report.txt
       name: dlsps_trivy_report
   
   pylint:
