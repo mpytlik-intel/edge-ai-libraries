@@ -225,8 +225,7 @@ def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", s
             return None
         frame_bgr = np.frombuffer(buf, dtype=np.uint8).reshape((height, width, 3))
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        frame_resized = cv2.resize(frame_rgb, (960, 540), interpolation=cv2.INTER_AREA)
-        return frame_resized
+        return frame_rgb
     except Exception:
         return None
 

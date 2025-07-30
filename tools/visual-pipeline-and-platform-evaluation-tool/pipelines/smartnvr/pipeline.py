@@ -37,7 +37,7 @@ class SmartNVRPipeline(GstPipeline):
             "  name=comp "
             "  {sinks} ! tee name=livetee "
             "livetee. ! queue2 ! {encoder} ! h264parse ! mp4mux ! filesink location={VIDEO_OUTPUT_PATH} async=false "
-            "livetee. ! queue2 ! videoconvert ! video/x-raw,format=BGR,width=640,height=360 ! {shmsink} "
+            "livetee. ! queue2 ! videoconvert ! video/x-raw,format=BGR,width={output_width},height={output_height} ! {shmsink} "
         )
 
         self._compositor = (
@@ -163,6 +163,11 @@ class SmartNVRPipeline(GstPipeline):
             xpos = 640 * (i % grid_size)
             ypos = 360 * (i // grid_size)
             sinks += self._sink.format(id=i, xpos=xpos, ypos=ypos)
+
+        # Calculate output video size for grid layout
+        # Added for live_preview to ensure same resolution for shmsink and output file
+        output_width = 640 * grid_size
+        output_height = 360 * ((channels + grid_size - 1) // grid_size)  # ceil(channels / grid_size)
 
         # Find the available compositor in elements dynamically
         if (
@@ -349,10 +354,10 @@ class SmartNVRPipeline(GstPipeline):
             try:
                 os.makedirs("/tmp/shared_memory", exist_ok=True)
                 with open("/tmp/shared_memory/video_stream.meta", "wb") as f:
-                    # width=640, height=360, dtype_size=1 (uint8)
-                    f.write(struct.pack("III", 360, 640, 1))
+                    # width=output_height, height=output_width, dtype_size=1 (uint8)
+                    f.write(struct.pack("III", output_height, output_width, 1))
                 logging.info("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
-                logging.info("Live stream format: BGR, shape=(360,640,3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
+                logging.info(f"Live stream format: BGR, shape=({output_height},{output_width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
             except Exception as e:
                 logging.warning(f"Could not write shared memory meta file: {e}")
 
@@ -364,6 +369,8 @@ class SmartNVRPipeline(GstPipeline):
                 encoder=_encoder_element,
                 compositor=_compositor_element,
                 shmsink=self._shmsink,
+                output_width=output_width,
+                output_height=output_height,
             ) + streams
         else:
             # Prepend the compositor
