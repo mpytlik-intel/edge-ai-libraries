@@ -19,7 +19,6 @@ spec:
     spec:
       securityContext:
         supplementalGroups: [109,110]
-        runAsNonRoot: true
       {{- if and $.Values.DOCKER_USERNAME $.Values.DOCKER_PASSWORD }}
       imagePullSecrets:
       - name: registryauth
@@ -31,14 +30,19 @@ spec:
         {{- if $.Values.privileged_access_required }}
         securityContext:
           privileged: true # Required for direct access to /dev
-          runAsNonRoot: true
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         {{- else }}
         securityContext:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         {{- end }}
         {{- if $.Values.gpu.enabled }}
         resources:
