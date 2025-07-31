@@ -62,7 +62,7 @@ spec:
         imagePullPolicy: {{ $.Values.imagePullPolicy }}
         {{- if $.Values.privileged_access_required }}
         securityContext:
-          privileged: true
+          privileged: true # Required for direct access to /dev
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: true
           capabilities:
@@ -110,7 +110,7 @@ spec:
           name: vol-pipeline-root-tmpfs0
         - name: dev
           mountPath: /dev
-          readOnly: true
+          readOnly: true # Reduce risk while preserving access to GPU/NPU devices
         - name: dev-shm
           mountPath: /dev/shm
         - name: tmp
