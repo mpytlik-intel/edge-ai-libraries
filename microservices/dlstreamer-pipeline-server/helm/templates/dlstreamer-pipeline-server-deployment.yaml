@@ -30,12 +30,14 @@ spec:
           - /bin/bash
           - -c
           - |
-            git clone --depth 1 https://github.com/open-edge-platform/edge-ai-libraries /tmp/repo
-            cp -r /tmp/repo/microservices/dlstreamer-pipeline-server/resources/models/geti/ /resources/models/
+            git clone --depth 1 https://github.com/open-edge-platform/edge-ai-libraries /repo
+            cp -r /repo/microservices/dlstreamer-pipeline-server/resources/models/geti/ /resources/models/
             curl -L https://github.com/open-edge-platform/edge-ai-libraries/raw/main/microservices/dlstreamer-pipeline-server/resources/videos/warehouse.avi -o /resources/videos/warehouse.avi
         volumeMounts:
           - name: pipeline-resources
             mountPath: /resources
+          - name: repo
+            mountPath: /repo
         env:
         - name: http_proxy
           value: {{ $.Values.env.http_proxy }}
@@ -148,4 +150,6 @@ spec:
         hostPath:
           path: /run/udev
       - name: pipeline-resources
+        emptyDir: {}
+      - name: repo
         emptyDir: {}
