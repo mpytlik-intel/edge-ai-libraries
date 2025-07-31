@@ -25,17 +25,14 @@ spec:
       {{- end }}
       initContainers:
       - name: fetch-pipeline-resources
-        image: alpine:3.20
+        image: bitnami/git:latest
         command:
-          - /bin/sh
+          - /bin/bash
           - -c
           - |
-            apk add --no-cache git wget;
-            mkdir -p /resources/models/geti;
-            mkdir -p /resources/videos;
-            git clone --depth 1 https://github.com/open-edge-platform/edge-ai-libraries.git /tmp/repo;
-            cp -r /tmp/repo/microservices/dlstreamer-pipeline-server/resources/models/geti/pallet_defect_detection /resources/models/geti/;
-            wget -O /resources/videos/warehouse.avi https://github.com/open-edge-platform/edge-ai-libraries/raw/main/microservices/dlstreamer-pipeline-server/resources/videos/warehouse.avi;
+            git clone --depth 1 https://github.com/open-edge-platform/edge-ai-libraries /tmp/repo
+            cp -r /tmp/repo/microservices/dlstreamer-pipeline-server/resources/models/geti/ /resources/models/
+            curl -L https://github.com/open-edge-platform/edge-ai-libraries/raw/main/microservices/dlstreamer-pipeline-server/resources/videos/warehouse.avi -o /resources/videos/warehouse.avi
         volumeMounts:
           - name: pipeline-resources
             mountPath: /resources
@@ -50,7 +47,7 @@ spec:
           runAsNonRoot: true
           runAsUser: 1000
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false  # <-- required since apk/git/wget are used and files are copied
+          readOnlyRootFilesystem: true
           capabilities:
             drop:
               - ALL
