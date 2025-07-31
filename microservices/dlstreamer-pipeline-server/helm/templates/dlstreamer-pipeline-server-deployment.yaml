@@ -23,6 +23,23 @@ spec:
       imagePullSecrets:
       - name: registryauth
       {{- end }}
+      initContainers:
+      - name: fetch-pipeline-resources
+        image: alpine:3.20
+        command:
+          - /bin/sh
+          - -c
+          - |
+            apk add --no-cache git wget;
+            mkdir -p /resources/models/geti;
+            mkdir -p /resources/videos;
+            git clone --depth 1 https://github.com/open-edge-platform/edge-ai-libraries.git /tmp/repo;
+            cp -r /tmp/repo/microservices/dlstreamer-pipeline-server/resources/models/geti/pallet_defect_detection /resources/models/geti/;
+            wget -O /resources/videos/warehouse.avi https://github.com/open-edge-platform/edge-ai-libraries/raw/main/microservices/dlstreamer-pipeline-server/resources/videos/warehouse.avi;
+        volumeMounts:
+          - name: pipeline-resources
+            mountPath: /resources
+
       containers:
       - name: dlstreamer-pipeline-server
         image: {{ $.Values.DOCKER_REGISTRY }}{{ $.Values.images.dlstreamer_pipeline_server }}
@@ -94,6 +111,9 @@ spec:
           mountPath: /var/tmp
         - name: run-udev
           mountPath: /run/udev
+        - name: pipeline-resources
+          mountPath: /home/pipeline-server/resources
+
       volumes:
       - name: dlstreamer-pipeline-server-input
         configMap:
@@ -115,3 +135,5 @@ spec:
       - name: run-udev
         hostPath:
           path: /run/udev
+      - name: pipeline-resources
+        emptyDir: {}
