@@ -56,7 +56,7 @@ DL Streamer Pipeline Server microservice's configuration is defined via environm
 - **ENABLE_OPEN_TELEMETRY (Boolean)** - Set to `true` to enable open telemetry. Set to `false` to disable open telemetry
   - Example: `ENABLE_OPEN_TELEMETRY=true`
   - Example: `ENABLE_OPEN_TELEMETRY=false`
-- **OTEL_COLLECTOR_HOST (String)** - Contianer name mentioned in [docker-compose-otel.yml](../../docker/docker-compose-otel.yml) or IP address of machine on which open telemetry service is hosted
+- **OTEL_COLLECTOR_HOST (String)** - Container name mentioned in `docker-compose-otel.yml` or IP address of machine on which open telemetry service is hosted
   - Example: `OTEL_COLLECTOR_HOST=otel-collector`
   - Example: `OTEL_COLLECTOR_HOST=<ip-addr>`
 - **OTEL_COLLECTOR_PORT (Integer)** - Port on which open telemetry service is running
