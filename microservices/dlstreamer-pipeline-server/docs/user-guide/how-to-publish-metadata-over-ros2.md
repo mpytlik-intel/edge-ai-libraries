@@ -53,7 +53,7 @@ Ensure to build/pull the DL Streamer Pipeline Server extended image i.e., `intel
 
 Below is an example that shows how to subscribe to the published data.
 
-- Install ROS2 Humble on Ubuntu22 and source it. Install pythyon and related dependencies too.
+- Install ROS2 Humble on Ubuntu22 and source it. Install python and related dependencies too.
     ```sh
         # Install ROS2 Humble
         sudo apt update && sudo apt install -y curl gnupg lsb-release
