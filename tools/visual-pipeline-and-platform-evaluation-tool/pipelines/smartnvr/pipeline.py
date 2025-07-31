@@ -1,12 +1,11 @@
+import logging
 import math
 import os
 from pathlib import Path
+import struct
 from typing import List
 
 from pipeline import GstPipeline
-
-import logging
-import struct
 
 
 class SmartNVRPipeline(GstPipeline):
@@ -50,7 +49,6 @@ class SmartNVRPipeline(GstPipeline):
             "filesink "
             "  location={VIDEO_OUTPUT_PATH} async=false "
         )
-
 
         self._recording_stream = (
             "filesrc "
@@ -164,11 +162,6 @@ class SmartNVRPipeline(GstPipeline):
             ypos = 360 * (i // grid_size)
             sinks += self._sink.format(id=i, xpos=xpos, ypos=ypos)
 
-        # Calculate output video size for grid layout
-        # Added for live_preview to ensure same resolution for shmsink and output file
-        output_width = 640 * grid_size
-        output_height = 360 * ((channels + grid_size - 1) // grid_size)  # ceil(channels / grid_size)
-
         # Find the available compositor in elements dynamically
         if (
             parameters["object_detection_device"].startswith("GPU.")
@@ -265,8 +258,6 @@ class SmartNVRPipeline(GstPipeline):
                 ),
             )
 
-
-
         # Create the streams
         streams = ""
 
@@ -295,7 +286,7 @@ class SmartNVRPipeline(GstPipeline):
             # Handle object classification parameters and constants
             # Do this only if the object classification model is not disabled or the device is not disabled
             if not (constants["OBJECT_CLASSIFICATION_MODEL_PATH"] == "Disabled"
-                    or parameters["object_classification_device"] == "Disabled") :
+                    or parameters["object_classification_device"] == "Disabled"):
                 classification_model_config = (
                     f"model={constants["OBJECT_CLASSIFICATION_MODEL_PATH"]} "
                     f"model-proc={constants["OBJECT_CLASSIFICATION_MODEL_PROC"]} "
@@ -350,19 +341,22 @@ class SmartNVRPipeline(GstPipeline):
             )
         # Compose pipeline depending on live_preview_enabled
         if live_preview_enabled:
+            # Calculate output video size for grid layout to ensure same resolution for shmsink and output file
+            output_width = 640 * grid_size
+            output_height = 360 * ((channels + grid_size - 1) // grid_size)  # ceil(channels / grid_size)
+
             # Always produce both file and live stream outputs
             try:
                 os.makedirs("/tmp/shared_memory", exist_ok=True)
                 with open("/tmp/shared_memory/video_stream.meta", "wb") as f:
                     # width=output_height, height=output_width, dtype_size=1 (uint8)
                     f.write(struct.pack("III", output_height, output_width, 1))
-                logging.info("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
-                logging.info(f"Live stream format: BGR, shape=({output_height},{output_width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
+                logging.debug("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
+                logging.debug(
+                    f"Live stream format: BGR, shape=({output_height},{output_width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
             except Exception as e:
                 logging.warning(f"Could not write shared memory meta file: {e}")
 
-            # Compose pipeline with tee: file + live stream
-            logging.info("Pipeline will output both to file and shared memory (live stream)")
             streams = self._compositor_with_tee.format(
                 **constants,
                 sinks=sinks,

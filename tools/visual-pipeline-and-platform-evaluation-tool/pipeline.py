@@ -74,4 +74,3 @@ class PipelineLoader:
         module = importlib.import_module(f"pipelines.{pipeline_name}.pipeline")
         pipeline_cls = getattr(module, classname)
         return pipeline_cls(), config
-

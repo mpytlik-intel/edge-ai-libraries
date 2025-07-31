@@ -3,16 +3,16 @@
 This module provides the Benchmark class for evaluating pipeline performance
 based on configurable parameters and stream counts.
 """
-from typing import List, Dict, Tuple
-import math
 import logging
+import math
+from typing import List, Dict, Tuple
+
 from utils import run_pipeline_and_extract_metrics
 
 logging.basicConfig(level=logging.INFO)
 
 
 class Benchmark:
-
     """Benchmarking class for pipeline evaluation."""
 
     DEFAULT_RATE = 100  # Default rate for AI stream percentage
@@ -91,7 +91,7 @@ class Benchmark:
                 return (0, 0, 0, 0.0)
             if results[0].get("exit_code") != 0:
                 return (0, 0, 0, 0.0)
-            
+
             result = results[0]
             try:
                 total_fps = float(result["total_fps"])
@@ -99,7 +99,7 @@ class Benchmark:
             except (ValueError, TypeError, ZeroDivisionError):
                 return (0, 0, 0, 0.0)
             if total_fps == 0 or math.isnan(per_stream_fps):
-                return (0,0,0,0.0)
+                return (0, 0, 0, 0.0)
 
             self.logger.info(
                 "n_streams=%d, total_fps=%f, per_stream_fps=%f, increments=%d, incrementing=%s",

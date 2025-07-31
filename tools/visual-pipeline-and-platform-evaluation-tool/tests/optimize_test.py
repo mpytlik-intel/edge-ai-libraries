@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from optimize import OptimizationResult, PipelineOptimizer
+from optimize import PipelineOptimizer
 from pipeline import GstPipeline
 
 
@@ -52,7 +52,7 @@ class TestPipelineOptimizer(unittest.TestCase):
             param_grid=self.param_grid,
             channels=2,
         )
-        optimizer.optimize()
+        optimizer.run_without_live_preview()
         self.assertEqual(len(optimizer.results), 2)
         self.assertEqual(optimizer.results[0].params["pattern"], "snow")
         self.assertEqual(optimizer.results[1].exit_code, 1)

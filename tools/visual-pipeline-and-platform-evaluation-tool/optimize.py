@@ -1,9 +1,9 @@
 import logging
 from dataclasses import dataclass
 from typing import Dict, List
-from utils import run_pipeline_and_extract_metrics
 
 from pipeline import GstPipeline
+from utils import run_pipeline_and_extract_metrics
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,7 +96,7 @@ class PipelineOptimizer:
                 )
             )
 
-    def optimize(self):
+    def run_without_live_preview(self):
         # Call shared method without live_preview, don't yield frames
         for _ in self._run_and_collect_metrics(live_preview=False):
             pass

@@ -1,24 +1,24 @@
-import subprocess
-import re
-import threading
-import time
+import contextlib
+import logging
+import mmap
 import os
 import random
-import string
-from typing import List, Dict, Tuple
-from subprocess import Popen, PIPE
-import psutil as ps
-from itertools import product
-import logging
-from pipeline import GstPipeline
+import re
 import select
-import numpy as np
-import cv2
+import string
 import struct
-import mmap
-import contextlib
+import subprocess
+import threading
+import time
+from itertools import product
+from subprocess import Popen, PIPE
+from typing import List, Dict, Tuple
 
+import cv2
+import numpy as np
+import psutil as ps
 
+from pipeline import GstPipeline
 
 cancelled = False
 
@@ -200,6 +200,7 @@ def find_shm_file(shm_prefix, socket_path="/tmp/shared_memory/video_stream"):
     except Exception:
         return None
 
+
 def read_latest_meta(meta_path):
     try:
         with open(meta_path, "rb") as f:
@@ -210,6 +211,7 @@ def read_latest_meta(meta_path):
             return height, width, dtype_size
     except Exception:
         return None
+
 
 def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", shm_fd=None):
     meta = read_latest_meta(meta_path)
@@ -229,6 +231,7 @@ def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", s
     except Exception:
         return None
 
+
 def run_pipeline_and_extract_metrics(
     pipeline_cmd: GstPipeline,
     constants: Dict[str, str],
@@ -236,7 +239,7 @@ def run_pipeline_and_extract_metrics(
     channels: int | tuple[int, int] = 1,
     elements: List[tuple[str, str, str]] = [],
     poll_interval: int = 1,
-):
+) -> Tuple[Dict[str, float], str, str]:
     global cancelled
     """
 
@@ -282,7 +285,6 @@ def run_pipeline_and_extract_metrics(
             # Set the environment variable to enable all drivers
             env = os.environ.copy()
             env["GST_VA_ALL_DRIVERS"] = "1"
-            # env["GST_DEBUG"] = "3,compositor:6,identity:6"
 
             # Spawn command in a subprocess
             process = Popen(_pipeline.split(" "), stdout=PIPE, stderr=PIPE, env=env)
