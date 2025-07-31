@@ -31,7 +31,7 @@ spec:
         securityContext:
           privileged: true # Required for direct access to /dev
           readOnlyRootFilesystem: true
-          allowPrivilegeEscalation: false
+          allowPrivilegeEscalation: true
           capabilities:
             drop:
               - ALL
@@ -40,6 +40,7 @@ spec:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
+          runAsUser: 1999
           capabilities:
             drop:
               - ALL
