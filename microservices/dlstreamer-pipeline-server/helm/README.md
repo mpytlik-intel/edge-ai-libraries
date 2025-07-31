@@ -42,6 +42,8 @@
     ```
 - Open VLC media player on your windows system. Cick on Media -> Open Network Stream -> Enter `rtsp://<Host_IP_where_Deep_Learning_Streamer_Pipeline_Server_is_running>:30025/pallet-defect-detection` in network URL tab and hit Play to see the visualization.
 
+## Troubleshooting
+- [Troubleshooting Guide](../docs/user-guide/troubleshooting-guide.md)
 
 ## Setup k8s cluster
 

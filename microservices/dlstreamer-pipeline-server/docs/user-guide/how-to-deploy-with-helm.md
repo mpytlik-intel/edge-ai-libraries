@@ -10,11 +10,20 @@
   Refer to tutorials such as <https://adamtheautomator.com/install-kubernetes-ubuntu> and many other
   online tutorials to setup kubernetes cluster on the web with host OS as ubuntu 22.04.
 - For helm installation, refer to [helm website](https://helm.sh/docs/intro/install/)
+- Clone the Edge-AI-Libraries repository from open edge platform and change to the docker directory inside DL Streamer Pipeline Server project.
+
+  ```sh
+    cd [WORKDIR]
+    git clone https://github.com/open-edge-platform/edge-ai-libraries.git
+    cd edge-ai-libraries/microservices/dlstreamer-pipeline-server/helm
+    ```
 
 ## Quick try out
 Follow the steps in this section to quickly pull the latest pre-built DL Streamer Pipeline Server helm charts followed by running a sample usecase. 
 
-### Pull the helm chart
+### Pull the helm chart (Optional)
+
+- Note: The helm chart should be downloaded when you are not using the helm chart provided in `edge-ai-libraries/microservices/dlstreamer-pipeline-server/helm`
 
 - Download helm chart with the following command
 
@@ -108,6 +117,8 @@ To check the pipeline status and stop the pipeline send the following requests,
 
 Now you have successfully run the DL Streamer Pipeline Server container, sent a curl request to start a pipeline within the microservice which runs the Geti based pallet defect detection model on a sample warehouse video. Then, you have also looked into the status of the pipeline to see if everything worked as expected and eventually stopped the pipeline as well.
 
+## Troubleshooting
+- [Troubleshooting Guide](./troubleshooting-guide.md)
 
 ## Summary
 

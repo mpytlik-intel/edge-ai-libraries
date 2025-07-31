@@ -184,6 +184,10 @@ Refer [here](https://docs.openedgeplatform.intel.com/edge-ai-libraries/dlstreame
   ```
 ---
 
+## Troubleshooting
+- [Troubleshooting Guide](docs/user-guide/troubleshooting-guide.md)
+
+---
 ## Learn More
 
 -   Understand the components, services, architecture, and data flow, in the [Overview](https://docs.openedgeplatform.intel.com/edge-ai-libraries/dlstreamer-pipeline-server/main/user-guide/Overview.html)
