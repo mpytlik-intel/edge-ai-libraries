@@ -111,3 +111,5 @@ DL Streamer Pipeline Server microservice's configuration is defined via environm
 - **LOG_LEVEL (String)** - Set the logging level for DL Streamer Pipeline Server
   - Example: `LOG_LEVEL=INFO`
   - Example: `LOG_LEVEL=DEBUG`
+  - Example: `LOG_LEVEL=ERROR`
+  - Example: `LOG_LEVEL=WARN`
