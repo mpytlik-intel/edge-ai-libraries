@@ -55,7 +55,16 @@ Update the below fields in `values.yaml` file in the helm chart
     
 ### Run default sample
 
-Once the pods are up, we will send a pipeline request to DL Streamer Pipeline Server to run a detection model on a warehouse video. Both the model and video are provided as default sample in the docker image.
+Once the pods are up, we will send a pipeline request to DL Streamer Pipeline Server to run a detection model on a warehouse video.
+
+Copy the resources such as video and model from local directory to the to the `dlstreamer-pipeline-server` pod to make them available for launching pipeline.
+```sh
+POD_NAME=$(kubectl get pods -n apps -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | grep dlstreamer-pipeline-server | head -n 1) 
+
+kubectl cp <edge-ai-libraries/microservices/dlstreamer-pipeline-server>/resources/models/geti/ $POD_NAME:/home/pipeline-server/resources/models/geti/ -c dlstreamer-pipeline-server -n apps
+
+kubectl cp <edge-ai-libraries/microservices/dlstreamer-pipeline-server>/resources/videos/warehouse.avi $POD_NAME:/home/pipeline-server/resources/videos/ -c dlstreamer-pipeline-server -n apps
+```
 
 We will send the below curl request to run the inference.
 It comprises of a source file path which is `warehouse.avi`, a destination, with metadata directed to a json fine in `/tmp/resuts.jsonl` and frames streamed over RTSP with id `pallet_defect_detection`. Additionally, we will also provide the GETi model path that would be used for detecting defective boxes on the video file.
