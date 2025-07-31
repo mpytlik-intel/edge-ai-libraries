@@ -117,5 +117,8 @@ DL Streamer Pipeline Server microservice's configuration is defined via environm
   - Example: `BASE_IMAGE=<base-image-name>`
 - **DLSTREAMER_PIPELINE_SERVER_IMAGE (String)** - Final image name to be given after successful build of DLStreamer pipeline server
   - Example: `DLSTREAMER_PIPELINE_SERVER_IMAGE=intel/dlstreamer-pipeline-server:3.1.0-ubuntu22`
+- **BUILD_TARGET (String)** - Option to select the target build for DLStreamer pipeline server. Use `dlstreamer-pipeline-server` for optimized image and `dlstreamer-pipeline-server-extended` for extended image
+  - Example: `BUILD_TARGET=dlstreamer-pipeline-server`
+  - Example: `BUILD_TARGET=dlstreamer-pipeline-server-extended`
 - **DLSTREAMER_PIPELINE_SERVER_DOCKERFILE (String)** - Path to docker file during building of DLStreamer pipeline server
   - Example: `DLSTREAMER_PIPELINE_SERVER_DOCKERFILE=Dockerfile`
