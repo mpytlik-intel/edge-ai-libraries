@@ -59,7 +59,7 @@ Once the pods are up, we will send a pipeline request to DL Streamer Pipeline Se
 The resources such as video and model are copied into `dlstreamer-pipeline-server` pod by `initContainers`.
 
 We will send the below curl request to run the inference.
-It comprises of a source file path which is `warehouse.avi`, a destination, with metadata directed to a json fine in `/tmp/resuts.jsonl` and frames streamed over RTSP with id `pallet_defect_detection`. Additionally, we will also provide the GETi model path that would be used for detecting defective boxes on the video file.
+It comprises of a source file path which is `warehouse.avi`, a destination, with metadata directed to a json file in `/tmp/resuts.jsonl` and frames streamed over RTSP with id `pallet_defect_detection`. Additionally, we will also provide the GETi model path that would be used for detecting defective boxes on the video file.
 
 Open another terminal and send the following curl request
 ```sh
