@@ -14,14 +14,7 @@
     `helm install dlsps . -n apps --create-namespace`
 - Check if Deep Learning Streamer Pipeline Server is running fine
     `kubectl get pods --namespace apps`and monitor its logs using `kubectl logs -f <pod_name> -n apps`
-- Copy the resources such as video and model from local directory to the to the `dlstreamer-pipeline-server` pod to make them available for launching pipeline.
-    ```sh
-    POD_NAME=$(kubectl get pods -n apps -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | grep dlstreamer-pipeline-server | head -n 1) 
-
-    kubectl cp ../resources/models/geti/ $POD_NAME:/home/pipeline-server/resources/models/geti/ -c dlstreamer-pipeline-server -n apps
-
-    kubectl cp ../resources/videos/warehouse.avi $POD_NAME:/home/pipeline-server/resources/videos/ -c dlstreamer-pipeline-server -n apps
-    ```
+- The resources such as video and model are copied into `dlstreamer-pipeline-server` pod by `initContainers`.
 - Send the curl command to start the pallet defect detection pipeline
     ``` sh
         curl http://localhost:30007/pipelines/user_defined_pipelines/pallet_defect_detection -X POST -H 'Content-Type: application/json' -d '{
