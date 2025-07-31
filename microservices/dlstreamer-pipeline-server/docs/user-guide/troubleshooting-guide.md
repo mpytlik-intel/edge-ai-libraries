@@ -7,11 +7,13 @@ For inference on GPU, the first inference might be even slower. Latency for up t
 When in `sync` mode, we suggest users to provide a `timeout` with a value to accommodate for the first inference latency to avoid request time out. 
 Read [here](./advanced-guide/detailed_usage/rest_api/restapi_reference_guide.md#post-pipelinesnameversioninstance_id) to learn more about the API.
 
+---
 
 ## Axis RTSP camera freezes or pipeline stops
 
 Restart the DL Streamer pipeline server container with the pipeline that has this rtsp source.
 
+---
 
 ## Deploying with Intel GPU K8S Extension
 
@@ -23,12 +25,16 @@ gpu:
    count: 1
 ```
 
+---
+
 ## Deploying without Intel GPU K8S Extension
 
 If you're deploying a GPU based pipeline (example: with VA-API elements like `vapostproc`, `vah264dec` etc., and/or with `device=GPU` in `gvadetect` in `dlstreamer_pipeline_server_config.json`) without Intel GPU k8s Extension, ensure to set the below details in the file `helm/values.yaml` appropriately in order to utilize the underlying GPU.
 ```sh
 privileged_access_required: true
 ```
+
+---
 
 ## Using RTSP/WebRTC streaming, S3_write or MQTT fails with GPU elements in pipeline
  
@@ -40,6 +46,8 @@ Add `vapostproc ! video/x-raw` before appsink element or `jpegenc` element(in ca
 "pipeline": "{auto_source} name=source ! parsebin ! vah264dec ! vapostproc ! video/x-raw(memory:VAMemory) ! gvadetect name=detection model-instance-id=inst0 ! queue ! gvafpscounter ! gvametaconvert add-empty-results=true name=metaconvert ! gvametapublish name=destination ! vapostproc ! video/x-raw ! appsink name=appsink"
 ```
 
+---
+
 ## RTSP streaming fails if you are using udfloader
  
 If you are using udfloader<link> pipeline RTSP streaming will not work because RTSP pipeline does not support RGB, BGR or Mono format.
@@ -49,6 +57,8 @@ If you are using `udfloader pipeline` or `RGB, BGR or GRAY8` format in the pipel
 
 "pipeline": "{auto_source} name=source  ! decodebin ! videoconvert ! video/x-raw,format=RGB ! udfloader name=udfloader ! gvametaconvert add-empty-results=true name=metaconvert ! gvametapublish name=destination ! videoconvert ! video/x-raw, format=(string)NV12 ! appsink name=appsink"
 ```
+
+---
 
 ## Resolving Time Sync Issues in Prometheus
 
@@ -90,11 +100,15 @@ You can following the below steps to synchronize system time using NTP.
 
 This should resolve the time discrepancy in Prometheus.
 
+---
+
 ## WebRTC Stream on web browser
 The firewall may prevent you from viewing the video stream on web browser. Please disable the firewall using this command.
 ```sh
 sudo ufw disable
 ```
+
+---
 
 ## Error Logs
 
