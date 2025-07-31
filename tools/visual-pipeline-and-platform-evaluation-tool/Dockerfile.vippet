@@ -14,20 +14,11 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-FROM ghcr.io/open-edge-platform/edge-ai-libraries/intel/edge-ai-dlstreamer:v1.2.0-20250722-ubuntu24
+FROM ghcr.io/open-edge-platform/edge-ai-libraries/intel/edge-ai-dlstreamer:20250729_EAL1.2_DLS_RC2-ubuntu24
 
 USER root
 
-RUN apt-get update && apt-get install --yes --no-install-recommends gstreamer1.0-plugins-ugly git python3-full python3-pip
-
-RUN \
-    mkdir /python3venv && \
-    chown -R dlstreamer: /python3venv && \
-    chmod -R u+w /python3venv
-
-RUN \
-    usermod -a -G video dlstreamer && \
-    ln -s /opt/intel/dlstreamer /home/dlstreamer/dlstreamer
+RUN apt-get update && apt-get install --yes --no-install-recommends gstreamer1.0-plugins-ugly
 
 USER dlstreamer
 
@@ -35,11 +26,15 @@ ENV GST_PLUGIN_PATH=$GST_PLUGIN_PATH/usr/lib/x86_64-linux-gnu/gstreamer-1.0/
 
 WORKDIR /home/dlstreamer/vippet
 
+ENV VIRTUAL_ENV=/home/dlstreamer/vippet/.venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 ADD requirements.txt /home/dlstreamer/vippet/requirements.txt
 
 RUN \
-    python3 -m venv /python3venv && \
-    pip install -r requirements.txt
+    pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 ADD app.py \
     app.css \
