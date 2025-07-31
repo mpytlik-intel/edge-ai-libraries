@@ -67,7 +67,7 @@ Running DL Streamer on Intel® Data Center GPU (Flex) requires specific drivers.
 Option #1: Install Intel® DL Streamer Pipeline Framework from Debian packages using APT repository
 --------------------------------------------------------------------------------------------------
 
-This option provides the simplest installation flow using apt-get install command.
+This option provides the simplest installation flow using apt install command.
 
 
 Step 1: Install prerequisites
@@ -114,7 +114,7 @@ Step 2: Setup repositories
 .. code:: sh
 
    sudo apt remove -y openvino* libopenvino-* python3-openvino*
-   sudo apt-get autoremove
+   sudo apt autoremove
 
 
 Step 3: Install Intel® DL Streamer Pipeline Framework
@@ -128,7 +128,7 @@ Step 3: Install Intel® DL Streamer Pipeline Framework
 .. code:: sh
 
    sudo apt update
-   sudo apt-get install intel-dlstreamer
+   sudo apt install intel-dlstreamer
 
 
 **Congratulations! Intel® DL Streamer is now installed and ready for use!**
