@@ -113,3 +113,9 @@ DL Streamer Pipeline Server microservice's configuration is defined via environm
   - Example: `LOG_LEVEL=DEBUG`
   - Example: `LOG_LEVEL=ERROR`
   - Example: `LOG_LEVEL=WARN`
+- **BASE_IMAGE (String)** - Base image name to be used to build the DLStreamer pipeline server docker
+  - Example: `BASE_IMAGE=<base-image-name>`
+- **DLSTREAMER_PIPELINE_SERVER_IMAGE (String)** - Final image name to be given after successful build of DLStreamer pipeline server
+  - Example: `DLSTREAMER_PIPELINE_SERVER_IMAGE=intel/dlstreamer-pipeline-server:3.1.0-ubuntu22`
+- **DLSTREAMER_PIPELINE_SERVER_DOCKERFILE (String)** - Path to docker file during building of DLStreamer pipeline server
+  - Example: `DLSTREAMER_PIPELINE_SERVER_DOCKERFILE=Dockerfile`
