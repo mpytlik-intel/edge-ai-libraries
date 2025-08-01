@@ -59,6 +59,7 @@ def prepare_video_and_constants(
     )
     object_classification_nireq = kwargs.get("object_classification_nireq", 1)
     pipeline_watermark_enabled = kwargs.get("pipeline_watermark_enabled", True)
+    pipeline_video_enabled = kwargs.get("pipeline_video_enabled", True)
     live_preview_enabled = kwargs.get("live_preview_enabled", False)
 
     random_string = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
@@ -86,6 +87,7 @@ def prepare_video_and_constants(
         "object_classification_reclassify_interval": [object_classification_reclassify_interval],
         "object_classification_nireq": [object_classification_nireq],
         "pipeline_watermark_enabled": [pipeline_watermark_enabled],
+        "pipeline_video_enabled": [pipeline_video_enabled],
         "live_preview_enabled": [live_preview_enabled],
     }
 
@@ -145,6 +147,16 @@ def prepare_video_and_constants(
                 f"{MODELS_PATH}/public/yolov10m/FP16/yolov10m.xml"
             )
             constants["OBJECT_DETECTION_MODEL_PROC"] = None
+        case "YOLO v8 License Plate Detector (FP16)":
+            if object_detection_device == "NPU":
+                raise ValueError(
+                    "YOLO v8 License Plate Detector model is not supported on NPU device. Please select another model."
+                )
+
+            constants["OBJECT_DETECTION_MODEL_PATH"] = (
+                f"{MODELS_PATH}/public/yolov8_license_plate_detector/FP16/yolov8_license_plate_detector.xml"
+            )
+            constants["OBJECT_DETECTION_MODEL_PROC"] = None
         case _:
             raise ValueError("Unrecognized Object Detection Model")
 
@@ -177,6 +189,18 @@ def prepare_video_and_constants(
             )
             constants["OBJECT_CLASSIFICATION_MODEL_PROC"] = (
                 f"{MODELS_PATH}/public/mobilenet-v2-pytorch/mobilenet-v2.json"
+            )
+        case "PaddleOCR (FP16)":
+            constants["OBJECT_CLASSIFICATION_MODEL_PATH"] = (
+                f"{MODELS_PATH}/public/ch_PP-OCRv4_rec_infer/FP16/ch_PP-OCRv4_rec_infer.xml"
+            )
+            constants["OBJECT_CLASSIFICATION_MODEL_PROC"] = None
+        case "Vehicle Attributes Recognition Barrier 0039 (FP16)":
+            constants["OBJECT_CLASSIFICATION_MODEL_PATH"] = (
+                f"{MODELS_PATH}/public/vehicle-attributes-recognition-barrier-0039/FP16/vehicle-attributes-recognition-barrier-0039.xml"
+            )
+            constants["OBJECT_CLASSIFICATION_MODEL_PROC"] = (
+                f"{MODELS_PATH}/public/vehicle-attributes-recognition-barrier-0039/vehicle-attributes-recognition-barrier-0039.json"
             )
         case _:
             raise ValueError("Unrecognized Object Classification Model")
