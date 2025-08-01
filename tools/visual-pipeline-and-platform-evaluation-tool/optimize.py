@@ -26,7 +26,6 @@ class PipelineOptimizer:
         channels: int | tuple[int, int] = 1,
         elements: List[tuple[str, str, str]] = [],
     ):
-
         # Initialize class variables
         self.pipeline = pipeline
         self.constants = constants

@@ -56,9 +56,7 @@ class PipelineLoader:
         config_path = Path(pipeline_path) / pipeline_name / "config.yaml"
         if not config_path.exists():
             raise FileNotFoundError(f"{config_path} not found")
-        return yaml.safe_load(
-            config_path.read_text()
-        )
+        return yaml.safe_load(config_path.read_text())
 
     @staticmethod
     def load(pipeline_name: str, pipeline_path: str = "pipelines") -> tuple:

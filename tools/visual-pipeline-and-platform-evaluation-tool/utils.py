@@ -12,7 +12,7 @@ import threading
 import time
 from itertools import product
 from subprocess import Popen, PIPE
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import cv2
 import numpy as np
@@ -21,6 +21,7 @@ import psutil as ps
 from pipeline import GstPipeline
 
 cancelled = False
+logger = logging.getLogger("utils")
 
 
 def prepare_video_and_constants(
@@ -72,7 +73,7 @@ def prepare_video_and_constants(
 
     # Reset the FPS file
     with open("/home/dlstreamer/vippet/.collector-signals/fps.txt", "w") as f:
-        f.write(f"0.0\n")
+        f.write("0.0\n")
 
     param_grid = {
         "object_detection_device": object_detection_device.split(", "),
@@ -189,33 +190,67 @@ def _iterate_param_grid(param_grid: Dict[str, List[str]]):
         yield dict(zip(keys, combination))
 
 
-def find_shm_file(shm_prefix, socket_path="/tmp/shared_memory/video_stream"):
+def find_shm_file():
+    """
+    Finds the most recent shared memory file for live preview.
+
+    Returns:
+        str or None: Full path of the most recent shared memory file, or None if not found.
+    """
     try:
-        files = os.listdir("/dev/shm")
+        shm_dir = "/dev/shm"
+        files = os.listdir(shm_dir)
         shm_files = [f for f in files if f.startswith("shmpipe.")]
         if not shm_files:
             return None
-        shm_files.sort(key=lambda x: os.path.getctime(os.path.join("/dev/shm", x)), reverse=True)
-        return shm_files[0]
-    except Exception:
+        shm_files.sort(key=lambda x: os.path.getctime(os.path.join(shm_dir, x)), reverse=True)
+        return os.path.join(shm_dir, shm_files[0])
+    except OSError:
+        logger.error("Error accessing /dev/shm directory.")
         return None
 
 
 def read_latest_meta(meta_path):
+    """
+    Reads the metadata file for shared memory frame dimensions and dtype size.
+
+    Args:
+        meta_path (str): Path to the metadata file.
+
+    Returns:
+        tuple or None: (height, width, dtype_size) if successful, None otherwise.
+    """
     try:
         with open(meta_path, "rb") as f:
             meta = f.read(12)
             if len(meta) != 12:
+                logger.error("Metadata file does not contain expected 12 bytes.")
                 return None
             height, width, dtype_size = struct.unpack("III", meta)
             return height, width, dtype_size
-    except Exception:
+    except (OSError, struct.error) as e:
+        logger.error(f"Error reading metadata file {meta_path}: {e}")
         return None
 
 
-def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", shm_fd=None):
+def read_shared_memory_frame(meta_path, shm_fd):
+    """
+    Reads a frame from shared memory using metadata for shape and dtype.
+
+    Args:
+        meta_path (str): Path to the metadata file.
+        shm_fd (file object): File descriptor for shared memory.
+
+    Returns:
+        np.ndarray or None: RGB frame if successful, None otherwise.
+    """
+    if shm_fd is None:
+        logger.error("Shared memory file descriptor is invalid.")
+        return None
+
     meta = read_latest_meta(meta_path)
-    if not meta or shm_fd is None:
+    if not meta:
+        logger.error("Metadata is invalid.")
         return None
     height, width, dtype_size = meta
     try:
@@ -224,11 +259,13 @@ def read_shared_memory_frame(meta_path="/tmp/shared_memory/video_stream.meta", s
         buf = mm[:frame_size]
         mm.close()
         if len(buf) != frame_size:
+            logger.error(f"Frame buffer size does not match expected frame size. Expected: {frame_size}, Actual: {len(buf)}")
             return None
         frame_bgr = np.frombuffer(buf, dtype=np.uint8).reshape((height, width, 3))
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         return frame_rgb
-    except Exception:
+    except (ValueError, OSError, cv2.error) as e:
+        logger.error(f"Error reading shared memory frame: {e}")
         return None
 
 
@@ -239,7 +276,7 @@ def run_pipeline_and_extract_metrics(
     channels: int | tuple[int, int] = 1,
     elements: List[tuple[str, str, str]] = [],
     poll_interval: int = 1,
-) -> Tuple[Dict[str, float], str, str]:
+):
     global cancelled
     """
 
@@ -251,9 +288,9 @@ def run_pipeline_and_extract_metrics(
         channels (int): Number of channels to match in the FPS metrics.
 
     Returns:
-        Tuple[Dict[str, float], str, str]: A dictionary of FPS metrics, stdout, and stderr.
+        List[Dict[str, any]]: A list of dictionaries containing the parameters and FPS metrics for each pipeline run.
     """
-    logger = logging.getLogger("utils")
+
     results = []
 
     # Set the number of regular channels
@@ -265,11 +302,7 @@ def run_pipeline_and_extract_metrics(
     inference_channels = channels if isinstance(channels, int) else channels[1]
 
     meta_path = "/tmp/shared_memory/video_stream.meta"
-    shm_prefix = "shmpipe.video_stream"
-    socket_path = "/tmp/shared_memory/video_stream"
-
     for params in _iterate_param_grid(parameters):
-
         # Get live_preview_enabled from params
         live_preview_enabled = params.get("live_preview_enabled", False)
 
@@ -309,7 +342,7 @@ def run_pipeline_and_extract_metrics(
 
             def process_worker():
                 try:
-                    logger.info("Starting process worker thread")
+                    logger.debug("Starting process worker thread")
                     while not stop_event.is_set():
                         reads, _, _ = select.select([process.stdout, process.stderr], [], [], poll_interval)
                         for r in reads:
@@ -343,45 +376,42 @@ def run_pipeline_and_extract_metrics(
                                         f.write(f"{latest_fps}\n")
                             elif r == process.stderr:
                                 process_stderr.append(line)
-                except Exception as e:
+                except (OSError, ValueError, select.error) as e:
                     logger.error(f"process_worker exception: {e}")
                 finally:
-                    logger.info("process_worker thread is stopping")
+                    logger.debug("process_worker thread is stopping")
 
+            # process_worker runs in a separate thread to avoid blocking the main thread in which we want to read frames as fast as possible
             worker_thread = threading.Thread(target=process_worker, daemon=True)
             worker_thread.start()
 
             try:
                 if live_preview_enabled:
+                    # Wait for the metadata file to be created, 10 seconds max
                     wait_time = 0
                     max_wait = 10
                     while not os.path.exists(meta_path) and wait_time < max_wait:
-                        time.sleep(0.5)
-                        wait_time += 0.5
+                        time.sleep(0.1)
+                        wait_time += 0.1
 
+                    # Wait for the shared memory file to be created, 10 seconds max
                     shm_file = None
                     wait_time = 0
                     while shm_file is None and wait_time < max_wait:
-                        shm_file = find_shm_file(shm_prefix, socket_path=socket_path)
+                        shm_file = find_shm_file()
                         if shm_file is None:
-                            time.sleep(0.5)
-                            wait_time += 0.5
+                            time.sleep(0.1)
+                            wait_time += 0.1
 
                     if shm_file is None:
-                        logger.error(f"Could not find shm_file for live preview after {max_wait} seconds.")
-                        raise RuntimeError("Live preview shared memory file not found.")
-
-                    shm_path = os.path.join("/dev/shm", shm_file)
-                    shm_fd = open(shm_path, "rb")
+                        logger.error(f"Could not find shm_file for live preview after {max_wait} seconds, will not show live preview.")
+                    else:
+                        shm_fd = open(shm_file, "rb")
 
                     while True:
                         # If process ended, break and close socket to let shmsink finish
                         if process.poll() is not None:
                             break
-
-                        frame = read_shared_memory_frame(meta_path=meta_path, shm_fd=shm_fd)
-                        yield frame
-                        time.sleep(1.0 / 30.0)
 
                         # Handle interruption
                         if cancelled:
@@ -391,22 +421,24 @@ def run_pipeline_and_extract_metrics(
                             break
 
                         # If process is zombie, break and close shm_fd
-                        if ps.Process(process.pid).status() == "zombie":
-                            exit_code = process.wait()
-                            logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                        try:
+                            if ps.Process(process.pid).status() == "zombie":
+                                exit_code = process.wait()
+                                logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                                break
+                        except ps.NoSuchProcess as e:
+                            logger.error(f"psutil error: {e}")
                             break
 
-                    # After breaking out of the loop, CLOSE shm_fd to signal EOS to shmsink
-                    if shm_fd is not None:
-                        with contextlib.suppress(Exception):
-                            shm_fd.close()
-                        shm_fd = None
+                        frame = read_shared_memory_frame(meta_path=meta_path, shm_fd=shm_fd)
+                        yield frame
+                        time.sleep(1.0 / 30.0)
 
                     # Wait for GStreamer process to end if not already
                     try:
                         if process.poll() is None:
                             exit_code = process.wait(timeout=10)
-                    except Exception:
+                    except subprocess.TimeoutExpired:
                         logger.warning("Process did not exit cleanly after closing socket.")
 
                 else:
@@ -418,13 +450,17 @@ def run_pipeline_and_extract_metrics(
                             logger.info("Process cancelled, terminating")
                             break
                         time.sleep(0.1)
-                        if ps.Process(process.pid).status() == "zombie":
-                            exit_code = process.wait()
-                            logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                        try:
+                            if ps.Process(process.pid).status() == "zombie":
+                                exit_code = process.wait()
+                                logger.info("Process is a zombie, exiting: {}".format(exit_code))
+                                break
+                        except ps.NoSuchProcess as e:
+                            logger.error(f"psutil error: {e}")
                             break
 
             finally:
-                logger.info("Stopping frame worker thread")
+                logger.debug("Stopping frame worker thread")
                 stop_event.set()
                 worker_thread.join()
                 if shm_fd is not None:
@@ -511,5 +547,8 @@ def run_pipeline_and_extract_metrics(
 
         except subprocess.CalledProcessError as e:
             logger.error(f"Error: {e}")
+            continue
+        except (OSError, ValueError) as e:
+            logger.error(f"Pipeline execution error: {e}")
             continue
     return results
