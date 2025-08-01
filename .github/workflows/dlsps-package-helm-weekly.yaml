@@ -1,10 +1,11 @@
+
 name: "[DLSPS] Package helm charts weekly "
 run-name: "[DLSPS] Package helm charts weekly"
 on:
   workflow_dispatch:
     inputs:
-      image-tag:
-        description: 'Image tag'
+      helm-chart-tag:
+        description: 'Helm chart tag'
         required: true
         type: string
       
@@ -38,23 +39,19 @@ jobs:
     - name: Package Helm Chart
       run: |
         cd edge-ai-libraries-repo/microservices/dlstreamer-pipeline-server/helm  
-        helm package . --version ${{ inputs.image-tag }} --app-version ${{ inputs.image-tag }}
+        helm package . --version ${{ inputs.helm-chart-tag }} --app-version ${{ inputs.helm-chart-tag }}
     - name: Push to GHCR
       run: |
-        CHART_PACKAGE=$(ls edge-ai-libraries-repo/microservices/dlstreamer-pipeline-server/helm/dlstreamer-pipeline-server-${{ inputs.image-tag }}.tgz)
-        helm push $CHART_PACKAGE oci://ghcr.io/${{ github.repository }}/dlsps_helm-charts
+        CHART_PACKAGE=$(ls edge-ai-libraries-repo/microservices/dlstreamer-pipeline-server/helm/dlstreamer-pipeline-server-${{ inputs.helm-chart-tag }}.tgz)
+        helm push $CHART_PACKAGE oci://ghcr.io/${{ github.repository }}/
         
-
     - name: Update Github Summary
       run: |
         echo "### ✅ DLStreamerPipelineServer helm chart published to github container registry" >> $GITHUB_STEP_SUMMARY
           echo "- Registry: \`oci://ghcr.io/${{ github.repository }}/dlsps_helm-charts\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: \`${{ inputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Pull command: \`helm pull oci://ghcr.io/${{ github.repository }}/dlsps_helm-charts/dlstreamer-pipeline-server --version ${{ inputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY 
-
+          echo "- Version: \`${{ inputs.helm-chart-tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Pull command: \`helm pull oci://ghcr.io/${{ github.repository }}/dlstreamer-pipeline-server --version ${{ inputs.helm-chart-tag }}\`" >> $GITHUB_STEP_SUMMARY 
     - name: Clean up
       if: always()
       run: |
         rm -rf edge-ai-libraries-repo
-
-    
