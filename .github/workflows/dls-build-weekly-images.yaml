@@ -394,6 +394,7 @@ jobs:
         dlsps_img: ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server@${{ steps.digest.outputs.digest_latest }}
       run: |
         cosign sign --yes ${dlsps_img}
+
     - name: Clean up
       if: always()
       run: |
