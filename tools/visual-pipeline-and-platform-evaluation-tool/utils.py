@@ -18,7 +18,7 @@ import cv2
 import numpy as np
 import psutil as ps
 
-from pipeline import GstPipeline
+from gstpipeline import GstPipeline
 
 cancelled = False
 logger = logging.getLogger("utils")
@@ -293,6 +293,30 @@ def read_shared_memory_frame(meta_path, shm_fd):
         return None
 
 
+def get_video_resolution(video_path):
+    """
+    Returns (width, height) of a video file or default (1280, 720) if any error occurs.
+    """
+    default_width = 1280
+    default_height = 720
+
+    try:
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            logging.error(f"Cannot open video file: {video_path}")
+            return default_width, default_height
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap.release()
+        # If width or height is zero, return defaults and log warning
+        if width == 0 or height == 0:
+            logging.warning(f"Could not read video resolution for file: {video_path}")
+            return default_width, default_height
+        return width, height
+    except Exception:
+        logging.error(f"Exception occurred while reading video resolution for file: {video_path}")
+        return default_width, default_height
+
 def run_pipeline_and_extract_metrics(
     pipeline_cmd: GstPipeline,
     constants: Dict[str, str],
@@ -331,9 +355,7 @@ def run_pipeline_and_extract_metrics(
         live_preview_enabled = params.get("live_preview_enabled", False)
 
         # Evaluate the pipeline with the given parameters, constants, and channels
-        _pipeline = pipeline_cmd.evaluate(
-            constants, params, regular_channels, inference_channels, elements, live_preview_enabled=live_preview_enabled
-        )
+        _pipeline = pipeline_cmd.evaluate(constants, params, regular_channels, inference_channels, elements)
 
         # Log the command
         logger.info(f"Pipeline Command: {_pipeline}")

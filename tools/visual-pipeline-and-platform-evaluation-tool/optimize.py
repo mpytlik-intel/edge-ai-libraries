@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
-from pipeline import GstPipeline
+from gstpipeline import GstPipeline
 from utils import run_pipeline_and_extract_metrics
 
 logging.basicConfig(level=logging.INFO)
@@ -111,7 +111,7 @@ class PipelineOptimizer:
             stdout = metrics.get("stdout", "")
             stderr = metrics.get("stderr", "")
 
-            success_result = self.is_success_result(metrics, stderr)
+            success_result = self.is_success_result(exit_code, stderr)
             # If is success_result but shmsink bug, set exit_code to 0
             if exit_code != 0 and success_result:
                 self.logger.debug(

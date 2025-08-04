@@ -3,9 +3,8 @@ import math
 import os
 from pathlib import Path
 import struct
-from typing import List
 
-from pipeline import GstPipeline
+from gstpipeline import GstPipeline
 
 
 class SmartNVRPipeline(GstPipeline):
@@ -133,8 +132,7 @@ class SmartNVRPipeline(GstPipeline):
         parameters: dict,
         regular_channels: int,
         inference_channels: int,
-        elements: List[tuple[str, str, str]] = [],
-        live_preview_enabled: bool = False,
+        elements: list = None,
     ) -> str:
 
         # Set pre process backed for object detection
@@ -340,7 +338,7 @@ class SmartNVRPipeline(GstPipeline):
                 max_size_buffers=1,
             )
         # Compose pipeline depending on live_preview_enabled
-        if live_preview_enabled:
+        if parameters["live_preview_enabled"]:
             # Calculate output video size for grid layout to ensure same resolution for shmsink and output file
             output_width = 640 * grid_size
             output_height = 360 * ((channels + grid_size - 1) // grid_size)  # ceil(channels / grid_size)

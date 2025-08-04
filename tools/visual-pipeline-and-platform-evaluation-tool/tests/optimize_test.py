@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from optimize import PipelineOptimizer
-from pipeline import GstPipeline
+from gstpipeline import GstPipeline
 
 
 class TestPipeline(GstPipeline):

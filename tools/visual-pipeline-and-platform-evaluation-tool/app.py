@@ -13,7 +13,7 @@ from benchmark import Benchmark
 from device import DeviceDiscovery
 from explore import GstInspector
 from optimize import PipelineOptimizer
-from pipeline import PipelineLoader, GstPipeline
+from gstpipeline import PipelineLoader, GstPipeline
 from utils import prepare_video_and_constants
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
