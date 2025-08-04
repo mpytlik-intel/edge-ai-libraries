@@ -157,7 +157,7 @@ Run the following commands:
      docker compose build
    ```
    
-   The docker image `intel/dlstreamer-pipeline-server:3.1.0-ubuntu22`, `intel/dlstreamer-pipeline-server:3.1.0-ubuntu24`, `intel/dlstreamer-pipeline-server:3.1.0-extended-ubuntu22` or `intel/dlstreamer-pipeline-server:3.1.0-extended-ubuntu24` is now built (based on the .env changes done above) and available for you to run.
+   The docker image of DL Streamer Pipeline Server is now built (based on the .env changes done above) and available for you to run.
    
    ```sh
      docker compose up

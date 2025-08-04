@@ -45,21 +45,12 @@ You can build either an optimized or an extended DL Streamer Pipeline Server ima
     source .env # sometimes this is needed as docker compose doesn't always pick up the necessary env variables
     docker compose build
     ```
----
 
-2. Once the build is complete, list the docker images
-    ```sh
-    docker image ls
-    ```
-Based on the `.env` file changes done above, verify that the appropriate image from the following is present in the system after the build is successful
-- `intel/dlstreamer-pipeline-server:<latest-version-number>-ubuntu22`
-- `intel/dlstreamer-pipeline-server:<latest-version-number>-ubuntu24`
-- `intel/dlstreamer-pipeline-server:<latest-version-number>-extended-ubuntu22`
-- `intel/dlstreamer-pipeline-server:<latest-version-number>-extended-ubuntu24`
+    The docker image of DL Streamer Pipeline Server is now built (based on the .env changes done above) and available for you to run.
 
 ---
 
-3. Run the below command to start the container 
+2. Run the below command to start the container 
     ```sh
     docker compose up
     ```
