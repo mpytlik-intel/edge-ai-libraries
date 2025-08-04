@@ -378,8 +378,6 @@ jobs:
         if [ "${{ matrix.ubuntu_version }}" == "ubuntu24" ]; then
           DIGEST_LATEST=$(skopeo inspect docker://ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:latest | jq -r '.Digest')
           echo "digest_latest=$DIGEST_LATEST" >> $GITHUB_OUTPUT
-          DIGEST_LATEST_EXTENDED=$(skopeo inspect docker://ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server-extended:latest | jq -r '.Digest')
-          echo "digest_latest_extended=$DIGEST_LATEST_EXTENDED" >> $GITHUB_OUTPUT
         fi
 
     - name: Sign Docker image using Cosign (keyless)
@@ -394,10 +392,8 @@ jobs:
       if: ${{ matrix.ubuntu_version == 'ubuntu24' }}
       env:
         dlsps_img: ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server@${{ steps.digest.outputs.digest_latest }}
-        dlsps_img_ext: ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server@${{ steps.digest.outputs.digest_latest_extended }}
       run: |
         cosign sign --yes ${dlsps_img}
-        cosign sign --yes ${dlsps_img_ext}
     - name: Clean up
       if: always()
       run: |
