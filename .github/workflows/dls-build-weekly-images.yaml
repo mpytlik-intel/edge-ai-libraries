@@ -318,6 +318,7 @@ jobs:
         export DLSTREAMER_PIPELINE_SERVER_DOCKERFILE=Dockerfile
         docker compose build --no-cache --pull
         export DLSTREAMER_PIPELINE_SERVER_IMAGE=ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-extended-${{ matrix.ubuntu_version }}
+        export BUILD_TARGET=dlstreamer-pipeline-server-extended
         docker compose build --no-cache --pull
 
     # ======================================================== SCANNING PART ========================================================
@@ -352,10 +353,8 @@ jobs:
     - name: Push Docker img
       run: |
         if [ "${{ matrix.ubuntu_version }}" == "ubuntu24" ]; then
-          docker tag ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server:latest
-          docker push ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server:latest
-          docker tag ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-extended-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server-extended:latest
-          docker push ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server-extended:latest
+          docker tag ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:latest
+          docker push ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:latest
         fi
         docker push ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-${{ matrix.ubuntu_version }}
         docker push ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-extended-${{ matrix.ubuntu_version }}
