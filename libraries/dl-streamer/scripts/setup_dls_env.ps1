@@ -83,6 +83,7 @@ echo "Generating GStreamer cache. It may take up to a few minutes for the first 
 echo "Please wait for a moment... "
 
 try {
+	del C:\Users\$env:USERNAME\AppData\Local\Microsoft\Windows\INetCache\gstreamer-1.0\registry.x86_64-msvc.bin
 	$(gst-inspect-1.0.exe gvadetect)
 } catch {
 	echo "Error caught - clearing a cache and retrying..."
