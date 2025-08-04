@@ -31,6 +31,7 @@ class TestGstPipeline(unittest.TestCase):
                     "parameters": {},
                     "regular_channels": 1,
                     "inference_channels": 1,
+                    "elements": [],
                 }
             )
 

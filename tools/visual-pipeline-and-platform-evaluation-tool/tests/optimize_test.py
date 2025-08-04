@@ -32,20 +32,30 @@ class TestPipelineOptimizer(unittest.TestCase):
 
     @patch("optimize.run_pipeline_and_extract_metrics")
     def test_optimize(self, mock_run_metrics):
-        mock_run_metrics.return_value = [
+        metrics_list = [
             {
                 "params": {"pattern": "snow"},
                 "exit_code": 0,
                 "total_fps": 100.0,
                 "per_stream_fps": 5.0,
+                "num_streams": 20,
             },
             {
                 "params": {"pattern": "ball"},
                 "exit_code": 1,
                 "total_fps": 50.0,
                 "per_stream_fps": 2.5,
+                "num_streams": 20,
             },
         ]
+
+        # Proper generator: yields nothing, returns metrics_list
+        def fake_generator(*args, **kwargs):
+            if False:
+                yield  # This makes it a generator
+            return metrics_list
+        mock_run_metrics.side_effect = fake_generator
+
         optimizer = PipelineOptimizer(
             pipeline=self.pipeline,
             constants=self.constants,
