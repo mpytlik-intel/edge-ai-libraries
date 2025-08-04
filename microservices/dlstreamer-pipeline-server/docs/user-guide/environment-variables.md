@@ -148,4 +148,4 @@ DL Streamer Pipeline Server microservice's configuration is defined via environm
 - **DLSTREAMER_PIPELINE_SERVER_DOCKERFILE (String)** - Path to docker file during building of DL Streamer Pipeline Server
   - Example: `DLSTREAMER_PIPELINE_SERVER_DOCKERFILE=Dockerfile`
 - **ZE_ENABLE_ALT_DRIVERS (String)** - Variable needed to run inference successfully on NPU devices
-  - Example: `ZE_ENABLE_ALT_DRIVERS=libze_intel_vpu.so`
+  - Example: `ZE_ENABLE_ALT_DRIVERS=libze_intel_npu.so`
