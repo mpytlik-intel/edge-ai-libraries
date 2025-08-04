@@ -433,10 +433,6 @@ def run_pipeline_and_extract_metrics(
                         shm_fd = open(shm_file, "rb")
 
                     while True:
-                        # If process ended, break and close socket to let shmsink finish
-                        if process.poll() is not None:
-                            break
-
                         # Handle interruption
                         if cancelled:
                             process.terminate()
@@ -448,10 +444,9 @@ def run_pipeline_and_extract_metrics(
                         try:
                             if ps.Process(process.pid).status() == "zombie":
                                 exit_code = process.wait()
-                                logger.info("Process is a zombie, exiting: {}".format(exit_code))
                                 break
                         except ps.NoSuchProcess as e:
-                            logger.error(f"psutil error: {e}")
+                            logger.info(f"Process {process.pid} is no longer running: {e}")
                             break
 
                         frame = read_shared_memory_frame(meta_path=meta_path, shm_fd=shm_fd)
@@ -477,10 +472,9 @@ def run_pipeline_and_extract_metrics(
                         try:
                             if ps.Process(process.pid).status() == "zombie":
                                 exit_code = process.wait()
-                                logger.info("Process is a zombie, exiting: {}".format(exit_code))
                                 break
                         except ps.NoSuchProcess as e:
-                            logger.error(f"psutil error: {e}")
+                            logger.info(f"Process {process.pid} is no longer running: {e}")
                             break
 
             finally:
@@ -550,14 +544,6 @@ def run_pipeline_and_extract_metrics(
                 num_streams = "N/A"
                 per_stream_fps = "N/A"
 
-            # Log the metrics
-            logger.info("Exit code: {}".format(exit_code))
-            logger.info("Total FPS is {}".format(total_fps))
-            logger.info("Per Stream FPS is {}".format(per_stream_fps))
-            logger.info("Num of Streams is {}".format(num_streams))
-            logger.info("Full process_output:\n" + "".join([line.decode("utf-8") for line in process_output]))
-            logger.info("Full process_stderr:\n" + "".join([line.decode("utf-8") for line in process_stderr]))
-
             # Save results
             results.append(
                 {
@@ -566,6 +552,8 @@ def run_pipeline_and_extract_metrics(
                     "total_fps": total_fps,
                     "per_stream_fps": per_stream_fps,
                     "num_streams": num_streams,
+                    "stdout": "".join([line.decode("utf-8") for line in process_output]),
+                    "stderr": "".join([line.decode("utf-8") for line in process_stderr]),
                 }
             )
 
