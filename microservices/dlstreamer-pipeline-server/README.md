@@ -132,7 +132,7 @@ Add the following lines in [.env file](./docker/.env) if you are behind a proxy.
   no_proxy= # example: no_proxy=localhost,127.0.0.1
   ```
 
-Update the following lines in [.env file](./docker/.env) for choosing the right base image and also for naming the image that gets built.
+Update the following lines in [.env file](./docker/.env) for choosing the right base and target images and also for naming the image that gets built.
 
   ``` sh
   # See .env file for example values

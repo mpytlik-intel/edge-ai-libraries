@@ -4,7 +4,7 @@ DL Streamer Pipeline Server offers publishing the metadata (with or without enco
 
 ## Prerequisite
 
-Ensure to build/pull the DL Streamer Pipeline Server extended image i.e., `intel/dlstreamer-pipeline-server:<version>-extended-ubuntu<ubuntu-version>`.
+Ensure to build/pull the DL Streamer Pipeline Server extended image.
 
 [Build instructions](./how-to-build-from-source.md)
 

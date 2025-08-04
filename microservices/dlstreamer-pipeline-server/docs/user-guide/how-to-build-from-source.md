@@ -21,7 +21,7 @@ You can build either an optimized or an extended DL Streamer Pipeline Server ima
     no_proxy= # example: no_proxy=localhost,127.0.0.1
     ```
 
-3. Update the following lines in `[WORKDIR]/edge-ai-libraries/microservices/dlstreamer-pipeline-server/docker/.env` for choosing the right base image and also for naming the image that gets built.
+3. Update the following lines in `[WORKDIR]/edge-ai-libraries/microservices/dlstreamer-pipeline-server/docker/.env` for choosing the right base and target images and also for naming the image that gets built.
 
     ``` sh
     # See .env file for example values
