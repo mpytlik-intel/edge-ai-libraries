@@ -42,6 +42,21 @@ class GstPipeline:
 
 class PipelineLoader:
     @staticmethod
+    def _validate_pipeline_name(pipeline_name: str, pipeline_path: str = "pipelines") -> None:
+        """Validate pipeline_name and raise ValueError with details if invalid."""
+        if (
+            not pipeline_name
+            or "/" in pipeline_name
+            or "\\" in pipeline_name
+            or ".." in pipeline_name
+            or Path(pipeline_name).is_absolute()
+        ):
+            raise ValueError(f"Invalid pipeline name: '{pipeline_name}'")
+        valid_pipelines = PipelineLoader.list(pipeline_path)
+        if pipeline_name not in valid_pipelines:
+            raise ValueError(f"Pipeline '{pipeline_name}' not found in '{pipeline_path}'")
+
+    @staticmethod
     def list(pipeline_path: str = "pipelines") -> List[str]:
         """Return available pipeline folder names (not display names)."""
         pipelines_dir = Path(pipeline_path)
@@ -54,28 +69,30 @@ class PipelineLoader:
     @staticmethod
     def config(pipeline_name: str, pipeline_path: str = "pipelines") -> dict:
         """Return full config dict for a pipeline."""
+        PipelineLoader._validate_pipeline_name(pipeline_name, pipeline_path)
         config_path = Path(pipeline_path) / pipeline_name / "config.yaml"
         # Validate that config_path is within the intended pipelines directory
         pipelines_dir = Path(pipeline_path).resolve(strict=True)
         try:
             config_path_resolved = config_path.resolve(strict=True)
         except Exception:
-            raise FileNotFoundError(f"{config_path} could not be resolved")
+            raise FileNotFoundError(f"Config file for pipeline '{pipeline_name}' could not be resolved at {config_path}")
         try:
             config_path_resolved.relative_to(pipelines_dir)
         except ValueError:
-            raise ValueError("Invalid pipeline name or path traversal detected")
+            raise ValueError(f"Invalid pipeline name or path traversal detected for '{pipeline_name}'")
         # At this point, config_path_resolved is guaranteed to exist and be within pipelines_dir
         return yaml.safe_load(config_path_resolved.read_text())
 
     @staticmethod
     def load(pipeline_name: str, pipeline_path: str = "pipelines") ->  Tuple[GstPipeline, Dict]:
         """Load pipeline class and config, or just metadata.name"""
+        PipelineLoader._validate_pipeline_name(pipeline_name, pipeline_path)
         config = PipelineLoader.config(pipeline_name, pipeline_path)
         classname = config.get("metadata", {}).get("classname")
         if not classname:
             raise ValueError(
-                f"Pipeline {pipeline_name} does not have a classname defined in config.yaml"
+                f"Pipeline '{pipeline_name}' does not have a classname defined in config.yaml"
             )
 
         # NOTE: This code always imports from the pipelines directory.
