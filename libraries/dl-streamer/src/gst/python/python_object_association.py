@@ -160,7 +160,7 @@ class Identifier(GstBase.BaseTransform):
         for region in regions:
             tensors = [t for t in region.tensors()]
             if len(tensors) > 2:
-                # TODO: create special label for embeddingg
+                # TODO: create special label for embedding
                 Gst.warning(
                     f"Limitation: must be only 1 tensor meta per ROI which is embedding, except detection meta.")
                 continue

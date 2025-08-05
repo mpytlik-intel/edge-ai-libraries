@@ -214,6 +214,7 @@ jobs:
         with:
           path: edge-ai-libraries-repo
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Run shellcheck
         uses: ./edge-ai-libraries-repo/.github/actions/common/shellcheck
