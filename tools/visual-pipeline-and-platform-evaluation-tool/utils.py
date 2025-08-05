@@ -24,6 +24,8 @@ cancelled = False
 logger = logging.getLogger("utils")
 
 UINT8_DTYPE_SIZE = 1
+DEFAULT_FRAME_RATE = 30.0
+VIDEO_STREAM_META_PATH = "/tmp/shared_memory/video_stream.meta"
 
 def prepare_video_and_constants(
     **kwargs: dict[str, any],
@@ -350,7 +352,6 @@ def run_pipeline_and_extract_metrics(
     # If no tuple is provided, the number of inference channels is equal to the number of channels
     inference_channels = channels if isinstance(channels, int) else channels[1]
 
-    meta_path = "/tmp/shared_memory/video_stream.meta"
     for params in _iterate_param_grid(parameters):
         # Get live_preview_enabled from params
         live_preview_enabled = params.get("live_preview_enabled", False)
@@ -437,7 +438,7 @@ def run_pipeline_and_extract_metrics(
                     # Wait for the metadata file to be created, 10 seconds max
                     wait_time = 0
                     max_wait = 10
-                    while not os.path.exists(meta_path) and wait_time < max_wait:
+                    while not os.path.exists(VIDEO_STREAM_META_PATH) and wait_time < max_wait:
                         time.sleep(0.1)
                         wait_time += 0.1
 
@@ -472,9 +473,9 @@ def run_pipeline_and_extract_metrics(
                             logger.info(f"Process {process.pid} is no longer running: {e}")
                             break
 
-                        frame = read_shared_memory_frame(meta_path=meta_path, shm_fd=shm_fd)
+                        frame = read_shared_memory_frame(meta_path=VIDEO_STREAM_META_PATH, shm_fd=shm_fd)
                         yield frame
-                        time.sleep(1.0 / 30.0)
+                        time.sleep(1.0 / DEFAULT_FRAME_RATE)
 
                     # Wait for GStreamer process to end if not already
                     try:

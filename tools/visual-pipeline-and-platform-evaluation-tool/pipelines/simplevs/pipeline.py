@@ -4,7 +4,7 @@ from pathlib import Path
 import struct
 
 from gstpipeline import GstPipeline
-from utils import get_video_resolution, UINT8_DTYPE_SIZE
+from utils import get_video_resolution, UINT8_DTYPE_SIZE, VIDEO_STREAM_META_PATH
 
 
 class SimpleVideoStructurizationPipeline(GstPipeline):
@@ -137,12 +137,9 @@ class SimpleVideoStructurizationPipeline(GstPipeline):
             # Write meta file for live preview
             try:
                 os.makedirs("/tmp/shared_memory", exist_ok=True)
-                with open("/tmp/shared_memory/video_stream.meta", "wb") as f:
+                with open(VIDEO_STREAM_META_PATH, "wb") as f:
                     # height, width, dtype_size=UINT8_DTYPE_SIZE (uint8)
                     f.write(struct.pack("III", height, width, UINT8_DTYPE_SIZE))
-                logging.debug("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
-                logging.debug(
-                    f"Live stream format: BGR, shape=({height},{width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
             except Exception as e:
                 logging.warning(f"Could not write shared memory meta file: {e}")
 

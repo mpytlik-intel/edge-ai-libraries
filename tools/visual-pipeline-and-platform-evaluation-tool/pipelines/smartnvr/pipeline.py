@@ -5,7 +5,7 @@ from pathlib import Path
 import struct
 
 from gstpipeline import GstPipeline
-from utils import UINT8_DTYPE_SIZE
+from utils import UINT8_DTYPE_SIZE, VIDEO_STREAM_META_PATH
 
 
 class SmartNVRPipeline(GstPipeline):
@@ -347,12 +347,9 @@ class SmartNVRPipeline(GstPipeline):
             # Always produce both file and live stream outputs
             try:
                 os.makedirs("/tmp/shared_memory", exist_ok=True)
-                with open("/tmp/shared_memory/video_stream.meta", "wb") as f:
+                with open(VIDEO_STREAM_META_PATH, "wb") as f:
                     # width=output_height, height=output_width, dtype_size=UINT8_DTYPE_SIZE (uint8)
                     f.write(struct.pack("III", output_height, output_width, UINT8_DTYPE_SIZE))
-                logging.debug("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
-                logging.debug(
-                    f"Live stream format: BGR, shape=({output_height},{output_width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")
             except Exception as e:
                 logging.warning(f"Could not write shared memory meta file: {e}")
 
