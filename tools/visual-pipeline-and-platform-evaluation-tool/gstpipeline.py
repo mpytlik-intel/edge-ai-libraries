@@ -56,18 +56,17 @@ class PipelineLoader:
         """Return full config dict for a pipeline."""
         config_path = Path(pipeline_path) / pipeline_name / "config.yaml"
         # Validate that config_path is within the intended pipelines directory
-        pipelines_dir = Path(pipeline_path).resolve()
+        pipelines_dir = Path(pipeline_path).resolve(strict=True)
         try:
-            config_path_resolved = config_path.resolve(strict=False)
+            config_path_resolved = config_path.resolve(strict=True)
         except Exception:
             raise FileNotFoundError(f"{config_path} could not be resolved")
         try:
             config_path_resolved.relative_to(pipelines_dir)
         except ValueError:
             raise ValueError("Invalid pipeline name or path traversal detected")
-        if not config_path.exists():
-            raise FileNotFoundError(f"{config_path} not found")
-        return yaml.safe_load(config_path.read_text())
+        # At this point, config_path_resolved is guaranteed to exist and be within pipelines_dir
+        return yaml.safe_load(config_path_resolved.read_text())
 
     @staticmethod
     def load(pipeline_name: str, pipeline_path: str = "pipelines") ->  Tuple[GstPipeline, Dict]:
