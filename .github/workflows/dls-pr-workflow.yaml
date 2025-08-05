@@ -171,7 +171,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Hadolint Action
-        uses: ./.github/actions/hadolint
+        uses: ./.github/actions/common/hadolint
         with:
           dockerfile: ${{ matrix.dockerfile }}
           output-file: ${{ matrix.output-file }}
