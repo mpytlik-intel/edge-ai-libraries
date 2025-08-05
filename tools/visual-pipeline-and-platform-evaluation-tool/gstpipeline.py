@@ -61,7 +61,9 @@ class PipelineLoader:
             config_path_resolved = config_path.resolve(strict=False)
         except Exception:
             raise FileNotFoundError(f"{config_path} could not be resolved")
-        if not str(config_path_resolved).startswith(str(pipelines_dir)):
+        try:
+            config_path_resolved.relative_to(pipelines_dir)
+        except ValueError:
             raise ValueError("Invalid pipeline name or path traversal detected")
         if not config_path.exists():
             raise FileNotFoundError(f"{config_path} not found")
