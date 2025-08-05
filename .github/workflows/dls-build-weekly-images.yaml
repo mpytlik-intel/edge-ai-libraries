@@ -388,5 +388,5 @@ jobs:
       if: always()
       run: |
         rm -rf edge-ai-libraries-repo
-        docker rmi ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server:latest || true
-        docker rmi ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-extended-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/dlstreamer-pipeline-server-extended:latest || true
+        docker rmi ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-${{ matrix.ubuntu_version }} ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:latest || true
+        docker rmi ghcr.io/${{ github.repository }}/intel/edge-ai-dlstreamer-pipeline-server:${{ inputs.image-tag }}-extended-${{ matrix.ubuntu_version }} || true
