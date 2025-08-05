@@ -1,6 +1,6 @@
 import importlib
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Tuple
 
 import yaml
 
@@ -55,12 +55,20 @@ class PipelineLoader:
     def config(pipeline_name: str, pipeline_path: str = "pipelines") -> dict:
         """Return full config dict for a pipeline."""
         config_path = Path(pipeline_path) / pipeline_name / "config.yaml"
+        # Validate that config_path is within the intended pipelines directory
+        pipelines_dir = Path(pipeline_path).resolve()
+        try:
+            config_path_resolved = config_path.resolve(strict=False)
+        except Exception:
+            raise FileNotFoundError(f"{config_path} could not be resolved")
+        if not str(config_path_resolved).startswith(str(pipelines_dir)):
+            raise ValueError("Invalid pipeline name or path traversal detected")
         if not config_path.exists():
             raise FileNotFoundError(f"{config_path} not found")
         return yaml.safe_load(config_path.read_text())
 
     @staticmethod
-    def load(pipeline_name: str, pipeline_path: str = "pipelines") -> tuple:
+    def load(pipeline_name: str, pipeline_path: str = "pipelines") ->  Tuple[GstPipeline, Dict]:
         """Load pipeline class and config, or just metadata.name"""
         config = PipelineLoader.config(pipeline_name, pipeline_path)
         classname = config.get("metadata", {}).get("classname")
