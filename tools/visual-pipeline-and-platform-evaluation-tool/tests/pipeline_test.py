@@ -64,7 +64,7 @@ class TestPipelineLoader(unittest.TestCase):
         self.assertEqual(config, {"key": "value"})
 
     def test_config_file_not_found(self):
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ValueError):
             PipelineLoader.config("non_existent_pipeline", self.test_dir.name)
 
     def test_load(self):
