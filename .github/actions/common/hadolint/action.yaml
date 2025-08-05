@@ -30,10 +30,13 @@ runs:
       shell: bash
 
     - name: Run Hadolint
+      env: 
+        dockerfile: ${{ inputs.dockerfile }}
+        output-file: ${{ inputs.output-file }}
       run: |
-        hadolint ${{ inputs.dockerfile }} \
+        hadolint ${dockerfile} \
           --format tty \
-          | tee ${{ inputs.output-file }}
+          | tee ${output-file}
       shell: bash
       continue-on-error: true
 

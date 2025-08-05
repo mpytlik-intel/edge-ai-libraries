@@ -34,9 +34,12 @@ runs:
       shell: bash
 
     - name: Run pylint
+      env:
+        path: ${{ inputs.path }}
+        output-file: ${{ inputs.output-file }}
       run: |
-        find ${{ inputs.path }} -name "*.py" -not -path "*/venv/*" \
-          | xargs pylint | tee ${{ inputs.output-file }}
+        find ${path} -name "*.py" -not -path "*/venv/*" \
+          | xargs pylint | tee ${output-file}
       shell: bash
       continue-on-error: true
 
