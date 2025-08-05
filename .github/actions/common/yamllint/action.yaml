@@ -1,0 +1,32 @@
+name: Run Yamllint
+description: Lint YAML files using yamllint
+
+inputs:
+  path:
+    description: Path to YAML files or folder
+    required: true
+  output-file:
+    description: Path to store the yamllint output
+    required: true
+  name:
+    description: Name of the artifact
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Yamllint
+      run: sudo apt-get install -y yamllint
+      shell: bash
+
+    - name: Run Yamllint
+      run: |
+        yamllint ${{ inputs.path }} | tee ${{ inputs.output-file }}
+      shell: bash
+
+    - name: Upload Yamllint report
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: yamllint-report-${{ inputs.name }}
+        path: ${{ inputs.output-file }}

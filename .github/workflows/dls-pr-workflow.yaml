@@ -170,24 +170,60 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Hadolint
-        run: |
-          curl -sSL -o hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
-          chmod +x hadolint
-          mv hadolint /usr/local/bin/
-
-      - name: Run Hadolint
-        run: |
-          hadolint ${{ matrix.dockerfile }} \
-            --format tty \
-            | tee ${{ matrix.output-file }}
-
-      - name: Upload Hadolint report as artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - name: Run Hadolint Action
+        uses: ./.github/actions/hadolint
         with:
-          name: hadolint-report-${{ matrix.name }}
-          path: ${{ matrix.output-file }}
+          dockerfile: ${{ matrix.dockerfile }}
+          output-file: ${{ matrix.output-file }}
+          name: ${{ matrix.name }}
+
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out edge-ai-libraries repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        with:
+          path: edge-ai-libraries-repo
+          persist-credentials: false
+
+      - name: Run pylint
+        uses: ./.github/actions/pylint
+        with:
+          path: edge-ai-libraries-repo/libraries/dl-streamer
+          output-file: pylint-report.txt
+          name: dls
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out edge-ai-libraries repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        with:
+          path: edge-ai-libraries-repo
+          persist-credentials: false
+
+      - name: Run shellcheck
+        uses: ./.github/actions/shellcheck
+        with:
+          path: edge-ai-libraries-repo/libraries/dl-streamer
+          output-file: shellcheck-report.txt
+          name: dls
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out edge-ai-libraries repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        with:
+          path: edge-ai-libraries-repo
+          persist-credentials: false
+
+      - name: Run yamlint
+        uses: ./.github/actions/yamllint
+        with:
+          path: edge-ai-libraries-repo/libraries/dl-streamer
+          output-file: yamllint-report.txt
+          name: dls
 
   clamav:
     permissions:

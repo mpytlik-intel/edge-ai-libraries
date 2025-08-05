@@ -1,0 +1,32 @@
+name: Run ShellCheck
+description: Lint shell scripts using shellcheck
+
+inputs:
+  path:
+    description: Path to shell scripts or folder
+    required: true
+  output-file:
+    description: Path to store the shellcheck output
+    required: true
+  name:
+    description: Name of the artifact
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install ShellCheck
+      run: sudo apt-get install -y shellcheck
+      shell: bash
+
+    - name: Run ShellCheck
+      run: |
+        find ${{ inputs.path }} -name "*.sh" | xargs shellcheck | tee ${{ inputs.output-file }}
+      shell: bash
+
+    - name: Upload ShellCheck report
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: shellcheck-report-${{ inputs.name }}
+        path: ${{ inputs.output-file }}
