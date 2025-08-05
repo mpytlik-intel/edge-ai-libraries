@@ -8,6 +8,9 @@ If you want to build the images via `docker compose`, please refer to the sectio
 
 Once all the images are built, go back to `chat-question-and-answer-core` directory by using `cd ..` command. Then, you can proceed to start the service using the `docker compose` command as described in the [Get Started](./get-started.md) page.
 
+> **Note:** 
+> - The build instruction is applicable only on an Ubuntu system. Build from source is not supported for the sample application on [Edge Microvisor Toolkit (EMT)](https://github.com/open-edge-platform/edge-microvisor-toolkit). The user is recommended to use prebuilt images on EMT. 
+
 ## Building the Backend Image
 To build the Docker image for the `Chat Question-and-Answer Core` application, follow these steps:
 
@@ -95,7 +98,7 @@ This guide explains how to build the images using the `compose.yaml` file via th
      source scripts/setup_env.sh -d gpu
      ```
 
-   ℹ️ The `-d gpu` flag enables the GPU-DEVICE profile and sets additional environment variables required for GPU-based execution.
+   ℹ️ The `-d gpu` flag enables the GPU-DEVICE profile required for GPU-based execution.
 
 3. Build the Docker images defined in the `compose.yaml` file:
 
@@ -131,7 +134,10 @@ After building the images for the `Chat Question-and-Answer Core` application, y
      source scripts/setup_env.sh -d gpu
      ```
 
-   Configure the models to be used (LLM, Embeddings, Rerankers) in the `scripts/setup_env.sh` as needed. Refer to and use the same list of models as documented in [Chat Question-and-Answer](../../../chat-question-and-answer/docs/user-guide/get-started.md#supported-models).
+   Configure the models to be used (LLM, Embeddings, Rerankers) through a YAML configuration file, as outlined in the [Get-Started: Running The Application using Docker Compose](./get-started.md#running-the-application-using-docker-compose) section.
+
+   Refer to and use the same list of models as documented in [Chat Question-and-Answer](../../../chat-question-and-answer/docs/user-guide/get-started.md#supported-models).
+
 
 2. Start the Docker containers with the previously built images:
 
