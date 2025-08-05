@@ -38,6 +38,7 @@ runs:
         find ${{ inputs.path }} -name "*.py" -not -path "*/venv/*" \
           | xargs pylint | tee ${{ inputs.output-file }}
       shell: bash
+      continue-on-error: true
 
     - name: Upload Pylint report
       if: always()

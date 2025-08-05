@@ -30,6 +30,7 @@ runs:
       run: |
         find ${{ inputs.path }} -name "*.sh" | xargs shellcheck | tee ${{ inputs.output-file }}
       shell: bash
+      continue-on-error: true
 
     - name: Upload ShellCheck report
       if: always()

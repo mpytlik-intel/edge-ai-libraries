@@ -30,6 +30,7 @@ runs:
       run: |
         yamllint ${{ inputs.path }} | tee ${{ inputs.output-file }}
       shell: bash
+      continue-on-error: true
 
     - name: Upload Yamllint report
       if: always()

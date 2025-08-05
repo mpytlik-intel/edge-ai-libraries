@@ -177,6 +177,8 @@ jobs:
           dockerfile: ${{ matrix.dockerfile }}
           output-file: ${{ matrix.output-file }}
           name: ${{ matrix.name }}
+          enable-reviewdog: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   pylint:
     permissions:
