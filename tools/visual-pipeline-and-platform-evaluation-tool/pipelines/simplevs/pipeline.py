@@ -4,7 +4,7 @@ from pathlib import Path
 import struct
 
 from gstpipeline import GstPipeline
-from utils import get_video_resolution
+from utils import get_video_resolution, UINT8_DTYPE_SIZE
 
 
 class SimpleVideoStructurizationPipeline(GstPipeline):
@@ -138,8 +138,8 @@ class SimpleVideoStructurizationPipeline(GstPipeline):
             try:
                 os.makedirs("/tmp/shared_memory", exist_ok=True)
                 with open("/tmp/shared_memory/video_stream.meta", "wb") as f:
-                    # height, width, dtype_size=1 (uint8)
-                    f.write(struct.pack("III", height, width, 1))
+                    # height, width, dtype_size=UINT8_DTYPE_SIZE (uint8)
+                    f.write(struct.pack("III", height, width, UINT8_DTYPE_SIZE))
                 logging.debug("Wrote shared memory meta file for live streaming: /tmp/shared_memory/video_stream.meta")
                 logging.debug(
                     f"Live stream format: BGR, shape=({height},{width},3), dtype=uint8, shm_path=/tmp/shared_memory/video_stream")

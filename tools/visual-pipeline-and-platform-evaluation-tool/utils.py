@@ -23,6 +23,7 @@ from gstpipeline import GstPipeline
 cancelled = False
 logger = logging.getLogger("utils")
 
+UINT8_DTYPE_SIZE = 1
 
 def prepare_video_and_constants(
     **kwargs: dict[str, any],
@@ -574,8 +575,8 @@ def run_pipeline_and_extract_metrics(
                     "total_fps": total_fps,
                     "per_stream_fps": per_stream_fps,
                     "num_streams": num_streams,
-                    "stdout": "".join([line.decode("utf-8") for line in process_output]),
-                    "stderr": "".join([line.decode("utf-8") for line in process_stderr]),
+                    "stdout": "".join([line.decode("utf-8", errors="replace") for line in process_output]),
+                    "stderr": "".join([line.decode("utf-8", errors="replace") for line in process_stderr]),
                 }
             )
 
