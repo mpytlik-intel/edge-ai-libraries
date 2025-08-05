@@ -11,6 +11,13 @@ inputs:
   name:
     description: Name for the artifact
     required: true
+  enable-reviewdog:
+    description: Enable ReviewDog PR comments
+    required: false
+    default: "false"
+  github_token:
+    description: GitHub token for ReviewDog
+    required: false
 
 runs:
   using: "composite"
@@ -35,3 +42,12 @@ runs:
       with:
         name: hadolint-report-${{ inputs.name }}
         path: ${{ inputs.output-file }}
+
+    - name: Run ReviewDog (Hadolint)
+      if: ${{ inputs.enable-reviewdog == 'true' }}
+      uses: reviewdog/action-hadolint@fc7ee4a9f71e521bc43e370819247b70e5327540 # 1.50.2
+      with:
+        github_token: ${{ inputs.github_token }}
+        reporter: github-pr-review
+        level: warning
+        hadolint_flags: ${{ inputs.dockerfile }}

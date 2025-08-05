@@ -11,6 +11,13 @@ inputs:
   name:
     description: Name of the artifact
     required: true
+  enable-reviewdog:
+    description: Enable ReviewDog PR comments
+    required: false
+    default: "false"
+  github_token:
+    description: GitHub token for ReviewDog
+    required: false
 
 runs:
   using: "composite"
@@ -38,3 +45,13 @@ runs:
       with:
         name: pylint-report-${{ inputs.name }}
         path: ${{ inputs.output-file }}
+
+    - name: Run ReviewDog (Pylint)
+      if: ${{ inputs.enable-reviewdog == 'true' }}
+      uses: dciborow/action-pylint@cf6c9bcd79e4aa70e2fbeaf6332d741eb1e0bff8 #0.1.1
+      with:
+        github_token: ${{ inputs.github_token }}
+        reporter: github-pr-review
+        level: warning
+        workdir: ${{ inputs.path }}
+

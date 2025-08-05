@@ -11,6 +11,13 @@ inputs:
   name:
     description: Name of the artifact
     required: true
+  enable-reviewdog:
+    description: Enable ReviewDog PR comments
+    required: false
+    default: "false"
+  github_token:
+    description: GitHub token for ReviewDog
+    required: false
 
 runs:
   using: "composite"
@@ -30,3 +37,11 @@ runs:
       with:
         name: yamllint-report-${{ inputs.name }}
         path: ${{ inputs.output-file }}
+
+    - name: Run ReviewDog (Yamllint)
+      if: ${{ inputs.enable-reviewdog == 'true' }}
+      uses: reviewdog/action-yamllint@f01d8a48fd8d89f89895499fca2cff09f9e9e8c0 # 1.21.0
+      with:
+        github_token: ${{ inputs.github_token }}
+        reporter: github-pr-review
+        level: warning

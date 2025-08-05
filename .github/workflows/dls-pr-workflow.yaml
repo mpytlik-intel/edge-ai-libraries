@@ -144,6 +144,7 @@ jobs:
   hadolint:
     permissions:
       contents: read
+      pull-requests: write
     needs: [filter-docker-related-changes]
     if: needs.filter-docker-related-changes.outputs.docker_changed == 'true'
     name: SCAN Hadolint
@@ -180,6 +181,7 @@ jobs:
   pylint:
     permissions:
       contents: read
+      pull-requests: write
     name: SCAN pylint 
     runs-on: ubuntu-latest
     steps:
@@ -195,10 +197,13 @@ jobs:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: pylint-report.txt
           name: dls
+          enable-reviewdog: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   shellcheck:
     permissions:
       contents: read
+      pull-requests: write
     name: SCAN shellcheck
     runs-on: ubuntu-latest
     steps:
@@ -214,10 +219,13 @@ jobs:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: shellcheck-report.txt
           name: dls
+          enable-reviewdog: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   yamllint:
     permissions:
       contents: read
+      pull-requests: write
     name: SCAN yamllint
     runs-on: ubuntu-latest
     steps:
@@ -233,6 +241,8 @@ jobs:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: yamllint-report.txt
           name: dls
+          enable-reviewdog: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   clamav:
     permissions:

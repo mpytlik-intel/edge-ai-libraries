@@ -11,6 +11,13 @@ inputs:
   name:
     description: Name of the artifact
     required: true
+  enable-reviewdog:
+    description: Enable ReviewDog PR comments
+    required: false
+    default: "false"
+  github_token:
+    description: GitHub token for ReviewDog
+    required: false
 
 runs:
   using: "composite"
@@ -30,3 +37,12 @@ runs:
       with:
         name: shellcheck-report-${{ inputs.name }}
         path: ${{ inputs.output-file }}
+
+    - name: Run ReviewDog (ShellCheck)
+      if: ${{ inputs.enable-reviewdog == 'true' }}
+      uses: reviewdog/action-shellcheck@5ebd09ddbe2ebb471646ce234c6c8dd18663ca7c # 1.30.0
+      with:
+        github_token: ${{ inputs.github_token }}
+        reporter: github-pr-review
+        level: warning
+
