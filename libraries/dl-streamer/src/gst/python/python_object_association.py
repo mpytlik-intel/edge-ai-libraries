@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # ==============================================================================
-# Copyright (C) 2023 Intel Corporationn
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ==============================================================================
@@ -160,7 +160,7 @@ class Identifier(GstBase.BaseTransform):
         for region in regions:
             tensors = [t for t in region.tensors()]
             if len(tensors) > 2:
-                # TODO: create special label for embedding
+                # TODO: create special label for embeddingg
                 Gst.warning(
                     f"Limitation: must be only 1 tensor meta per ROI which is embedding, except detection meta.")
                 continue
