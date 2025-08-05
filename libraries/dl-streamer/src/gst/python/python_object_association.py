@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # ==============================================================================
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023 Intel Corporationn
 #
 # SPDX-License-Identifier: MIT
 # ==============================================================================
