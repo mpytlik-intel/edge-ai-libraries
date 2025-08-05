@@ -146,7 +146,7 @@ jobs:
       contents: read
     needs: [filter-docker-related-changes]
     if: needs.filter-docker-related-changes.outputs.docker_changed == 'true'
-    name: Run Hadolint
+    name: SCAN Hadolint
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -178,6 +178,9 @@ jobs:
           name: ${{ matrix.name }}
 
   pylint:
+    permissions:
+      contents: read
+    name: SCAN pylint 
     runs-on: ubuntu-latest
     steps:
       - name: Check out edge-ai-libraries repository
@@ -194,6 +197,9 @@ jobs:
           name: dls
 
   shellcheck:
+    permissions:
+      contents: read
+    name: SCAN shellcheck
     runs-on: ubuntu-latest
     steps:
       - name: Check out edge-ai-libraries repository
@@ -210,6 +216,9 @@ jobs:
           name: dls
 
   yamllint:
+    permissions:
+      contents: read
+    name: SCAN yamllint
     runs-on: ubuntu-latest
     steps:
       - name: Check out edge-ai-libraries repository
