@@ -187,7 +187,7 @@ jobs:
           persist-credentials: false
 
       - name: Run pylint
-        uses: ./.github/actions/pylint
+        uses: ./.github/actions/common/pylint
         with:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: pylint-report.txt
@@ -203,7 +203,7 @@ jobs:
           persist-credentials: false
 
       - name: Run shellcheck
-        uses: ./.github/actions/shellcheck
+        uses: ./.github/actions/common/shellcheck
         with:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: shellcheck-report.txt
@@ -219,7 +219,7 @@ jobs:
           persist-credentials: false
 
       - name: Run yamlint
-        uses: ./.github/actions/yamllint
+        uses: ./.github/actions/common/yamllint
         with:
           path: edge-ai-libraries-repo/libraries/dl-streamer
           output-file: yamllint-report.txt
