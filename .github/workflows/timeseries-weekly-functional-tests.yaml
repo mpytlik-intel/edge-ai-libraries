@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 14 * * 5' # 14:00 UTC
   workflow_dispatch:
+    inputs:
+        commit_id:
+          description: 'Commit ID to run the workflow on'
+          required: false
+          default: ''
   workflow_call:
     inputs:
       test_pattern:
@@ -11,6 +16,10 @@ on:
         required: false
         type: string
         default: '.'
+      commit_id:
+        description: 'Commit ID to run the workflow on'
+        required: false
+        type: string
 permissions: {}
 
 jobs:
@@ -29,9 +38,15 @@ jobs:
         persist-credentials: false
         path: edge-ai-libraries-repo
 
+    - name: Checkout to specific commit if provided
+      if: ${{ inputs.commit_id != '' }}
+      run: |
+        cd "${{ github.workspace }}/edge-ai-libraries-repo"
+        git checkout ${{ inputs.commit_id }}
+
     - name: Run time-series-analytics-microservices function tests
       run: |
-        cd "${{ github.workspace }}"
+        cd "${{ github.workspace }}/edge-ai-libraries-repo"
         cd ./microservices/time-series-analytics/tests-functional
         curl -sfL https://get.k3s.io | INSTALL_K3S_SELINUX_WARN=true INSTALL_K3S_VERSION=${K3S_VERSION} \
         sh -s - --disable=traefik --write-kubeconfig-mode=644
