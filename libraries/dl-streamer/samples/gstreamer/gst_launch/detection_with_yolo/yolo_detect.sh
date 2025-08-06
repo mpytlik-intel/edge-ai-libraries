@@ -142,7 +142,7 @@ else
 fi
 
 PIPELINE="gst-launch-1.0 $SOURCE_ELEMENT $DECODE_ELEMENT \
- gvadetect model=$MODEL_PATH"
+gvadetect model=$MODEL_PATH"
 if [[ -n "$MODEL_PROC" ]]; then
   PIPELINE="$PIPELINE model-proc=$MODEL_PROC"
 fi
