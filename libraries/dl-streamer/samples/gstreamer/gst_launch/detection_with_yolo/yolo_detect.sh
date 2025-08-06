@@ -96,7 +96,7 @@ fi
 
 DECODE_ELEMENT="! decodebin3 !"
 if [[ "$DEVICE" == "GPU" ]]; then
-  DECODE_ELEMENT+=" vapostproc ! video/x-raw(memory:VAMemory) !"
+  DECODE_ELEMENT+=" video/x-raw(memory:VAMemory) ! vapostproc !"
 fi
 
 if [[ "$PPBKEND" == "" ]]; then
@@ -142,7 +142,7 @@ else
 fi
 
 PIPELINE="gst-launch-1.0 $SOURCE_ELEMENT $DECODE_ELEMENT \
-gvadetect model=$MODEL_PATH"
+! queue ! gvadetect model=$MODEL_PATH"
 if [[ -n "$MODEL_PROC" ]]; then
   PIPELINE="$PIPELINE model-proc=$MODEL_PROC"
 fi
