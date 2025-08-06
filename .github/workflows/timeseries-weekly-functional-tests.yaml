@@ -41,12 +41,13 @@ jobs:
     - name: Checkout to specific commit if provided
       if: ${{ inputs.commit_id != '' }}
       run: |
-        cd "${{ github.workspace }}/edge-ai-libraries-repo"
+        cd "${{ github.workspace }}"
         git checkout ${{ inputs.commit_id }}
+        git log -2
 
     - name: Run time-series-analytics-microservices function tests
       run: |
-        cd "${{ github.workspace }}/edge-ai-libraries-repo"
+        cd "${{ github.workspace }}"
         cd ./microservices/time-series-analytics/tests-functional
         curl -sfL https://get.k3s.io | INSTALL_K3S_SELINUX_WARN=true INSTALL_K3S_VERSION=${K3S_VERSION} \
         sh -s - --disable=traefik --write-kubeconfig-mode=644
