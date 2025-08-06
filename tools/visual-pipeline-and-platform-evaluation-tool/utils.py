@@ -200,10 +200,10 @@ def prepare_video_and_constants(
             constants["OBJECT_CLASSIFICATION_MODEL_PROC"] = None
         case "Vehicle Attributes Recognition Barrier 0039 (FP16)":
             constants["OBJECT_CLASSIFICATION_MODEL_PATH"] = (
-                f"{MODELS_PATH}/public/vehicle-attributes-recognition-barrier-0039/FP16/vehicle-attributes-recognition-barrier-0039.xml"
+                f"{MODELS_PATH}/intel/vehicle-attributes-recognition-barrier-0039/FP16/vehicle-attributes-recognition-barrier-0039.xml"
             )
             constants["OBJECT_CLASSIFICATION_MODEL_PROC"] = (
-                f"{MODELS_PATH}/public/vehicle-attributes-recognition-barrier-0039/vehicle-attributes-recognition-barrier-0039.json"
+                f"{MODELS_PATH}/intel/vehicle-attributes-recognition-barrier-0039/vehicle-attributes-recognition-barrier-0039.json"
             )
         case _:
             raise ValueError("Unrecognized Object Classification Model")
