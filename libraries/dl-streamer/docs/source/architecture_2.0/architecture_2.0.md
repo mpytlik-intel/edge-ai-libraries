@@ -1,17 +1,17 @@
 # Architecture 2.0
 
-> **Note:** The Architecture 2.0 approach is being deprecated in favor of aligning
-Intel® DL Streamer with [GStreamer analytics
+> **Note:** The Architecture 2.0 approach is deprecated in favor of aligning
+the Intel® DL Streamer with [GStreamer analytics
 library](https://gstreamer.freedesktop.org/documentation/analytics/index.html).
 
-Intel® DL Streamer Pipeline Framework release 2022.2 introduces new
+Intel® DL Streamer Pipeline Framework release 2022.2 introduced
 architecture 2.0, aiming for the following goals:
 
-1. **Memory interop on CPU and GPU.** Provide independent sub-component
+1. **Memory Interop on CPU and GPU.** Provide independent sub-component
    (library) for zero-copy buffer sharing and memory mapping between
    various frameworks and memory handles on CPU and GPU. The zero-copy
-   optimization technique is especially and critically important for
-   devices connected with host via PCI, including dGPU. This
+   optimization technique is especially, critically important for
+   devices connected with host via PCI, including dGPUs. This
    sub-component also defines abstract C++ interfaces
    [Source](./api_ref/class_dlstreamer_Source),
    [Transform](./api_ref/class_dlstreamer_Transform) and
@@ -19,24 +19,24 @@ architecture 2.0, aiming for the following goals:
    [Memory Interop and C++ abstract interfaces](./cpp_interfaces) for details.
 2. **\"non-GStreamer\" backend support via C++/Python programming.**
    Expose Intel® DL Streamer functional blocks (elements) as both
-   GStreamer elements and C++/Python interfaces accessible by any
+   GStreamer elements and C++/Python interfaces, accessible by any
    C++/Python application (not using GStreamer). These out-of-box
    elements support typical media analytics operations such as
    post-processing and visualization of inference results. C++/Python
    applications (including samples in Direct Programming section) can
-   use mix of out-of-box elements, custom/additional elements, memory
+   use a mix of out-of-box elements, custom/additional elements, memory
    interop library and pipeline management logic on top to build
    complete performance-optimized media analytics pipeline. See
-   [C++ elements](cpp_elements) and [Elements list](elements_list) and
+   [C++ elements](cpp_elements), [Elements list](elements_list) and
    [Samples 2.0](samples_2.0) for details.
 3. **GStreamer bin elements.** Reimplement most gva\* elements as
-   GStreamer bin elements which internally build sub-pipeline of other
+   GStreamer bin elements which internally build sub-pipelines of other
    (low-level) GStreamer elements. Most low-level elements are C++
    elements (#2 above) automatically wrapped and registered as
-   GStreamer elements. Each low-level element performs only single
-   operation (no multi-stage processing inside element and no
+   GStreamer elements. Each low-level element performs only a single
+   operation (no multi-stage processing inside the element and no
    intermediate memory allocation) with all pipelining done on either
-   bin-elements or application level. See pages
+   bin-elements or on the application level. See pages
    [GStreamer Elements](gstreamer_elements) and [GStreamer Bin Elements](gstreamer_bins) for details.
 
 The following diagram visualizes Architecture 2.0 sub-components ①, ②
@@ -44,10 +44,10 @@ and ③ inside block **Intel® DL Streamer Pipeline Framework**
 
 ![image](dlstreamer-arch-2.0.png)
 
-> **Note:** Architecture 2.0 currently available in preview mode as transition not
-> completed yet. There is no strict backward compatibility in preview mode
+> **Note:** Architecture 2.0 is available in preview mode, and is not
+> completed. There is no strict backward compatibility in preview mode
 > (some changes/renaming may occur). It could be used for evaluation and
-> prototyping, it's not recommended for production usage yet.
+> prototyping. It is not recommended for production usage.
 
 :::{toctree}
 :maxdepth: 1

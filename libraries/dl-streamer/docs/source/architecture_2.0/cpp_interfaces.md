@@ -1,8 +1,8 @@
 # ① Memory Interop and C++ abstract interfaces
 
-Intel® DL Streamer provides independent sub-component for zero-copy
+Intel® DL Streamer provides independent sub-components for zero-copy
 buffer sharing and memory interop between various frameworks and memory
-handles on CPU and GPU
+handles on CPU and GPU:
 
 - CPU memory `void*`
 - FFmpeg `AVFrame`
@@ -19,7 +19,7 @@ The memory interop sub-component is available via APT installation
 `sudo apt install intel-dlstreamer-cpp` and on
 [github](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/include/dlstreamer).
 
-> **Note:** This sub-component implemented as C++ header-only library. Python
+> **Note:** This sub-component is implemented as a C++ header-only library. Python
 > bindings for this library coming in next releases.
 
 ## Why memory interop library?

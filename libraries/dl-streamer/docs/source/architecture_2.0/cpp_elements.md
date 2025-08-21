@@ -1,13 +1,13 @@
 # ② C++ elements
 
-Intel® DL Streamer C++ interface allows to develop new functional blocks
+Intel® DL Streamer C++ interface allows for developing new functional blocks
 (source, transform and sink elements) with minimal effort. The interface
-does not use any of GStreamer types, so elements/blocks written in this
+does not use any GStreamer types, so elements/blocks written in this
 interface can be used in both GStreamer-based and non-GStreamer
 applications.
 
-The C++ elements implementation typically inherit one of base classes
-which partially implement some functions in corresponding abstract
+The C++ element implementations typically inherit one of base classes,
+which partially implement some functions in the corresponding abstract
 interfaces:
 
 - [BaseSource](./api_ref/class_dlstreamer_BaseSource.html) partially implements
@@ -17,39 +17,37 @@ interfaces:
 - [BaseTransformInplace](./api_ref/class_dlstreamer_BaseTransformInplace.html) partially implements
   [Transform](./api_ref/class_dlstreamer_Transform.html)
 - [BaseSink](./api_ref/class_dlstreamer_BaseSink.html) partially implements
-  [Sink](./api_ref/class_dlstreamer_Sink.html) so that C++ element implements only remaining virtual functions (mostly `read`, `process` and `write` functions) as shown in diagram below
+  [Sink](./api_ref/class_dlstreamer_Sink.html) so that C++ element implements only the remaining virtual functions (mostly `read`, `process` and `write` functions) as shown in the diagram below.
 
 ⠀
-*C++ interfaces and base classes*
+**C++ interfaces and base classes**
 
 ![c++-interfaces-and-base-classes](../_images/c++-interfaces-and-base-classes.svg)
 
 Many examples how to create C++ elements can be found on github
-repository in [folder
-src](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/src)
-and sub-folders.
+repository in the [src](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/src) folder and its sub-folders.
 
 ## Element description
 
 The
-`struct_dlstreamer_ElementDesc` structure is used to describe an element input/output
-capabilities and supported parameters, and provide instance creation
-function. The most important are the following fields:
+`struct_dlstreamer_ElementDesc` structure is used to describe the input/output
+capabilities and supported parameters of an element, as well provide instance
+creation function. The most important fields are:
 
-- `name` - Name of element. Same name is used for both GStreamer and
+- `name` - Name of the element. Same name is used for both GStreamer and
   direct programming applications.
-- `params` - Array of parameters supported by element. In case of
+- `params` - Array of parameters supported by the element. In case of
   GStreamer, those will be translated to GStreamer properties.
-- `input_info` - Types of input [Frames]{.title-ref} that element
+- `input_info` - Types of input [Frames]{.title-ref} that the element
   can consume. In case of GStreamer interop, it will be represented as
   sink capabilities.
-- `output_info` - Types of output [Frames]{.title-ref} that element
+- `output_info` - Types of output [Frames]{.title-ref} that the element
   can produce. In case of GStreamer interop, it will be represented as
   source (src) capabilities.
 - `create` - Pointer to a function that creates an instance of an
   element.
 
-Here's example of
+Here's an example of
 `struct_dlstreamer_ElementDesc` structure for simple post-processing element:
 
 ```cpp
@@ -73,9 +71,9 @@ ElementDesc tensor_postproc_label = {
   .flags = 0};
 ```
 
-## How to create instance of C++ element
+## How to create an instance of a C++ element
 
-Instance of C++ element can be created using functions `create_source`,
+Instance of C++ element can be created using the functions `create_source`,
 `create_transform`, `create_sink`. These functions take pointer to
 `ElementDesc`, initialization parameters (as `std::map`) and optional
 context pointer as
@@ -85,8 +83,7 @@ context pointer as
 auto ffmpeg_source = create_source(ffmpeg_multi_source, {{"inputs", inputs}}, ffmpeg_ctx);
 ```
 
-See direct programming samples
+For examples, see direct programming samples
 [ffmpeg_openvino](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/samples/ffmpeg_openvino)
 and
-[ffmpeg_dpcpp](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/samples/ffmpeg_dpcpp)
-for examples.
+[ffmpeg_dpcpp](https://github.com/open-edge-platform/edge-ai-libraries/tree/main/libraries/dl-streamer/samples/ffmpeg_dpcpp).
