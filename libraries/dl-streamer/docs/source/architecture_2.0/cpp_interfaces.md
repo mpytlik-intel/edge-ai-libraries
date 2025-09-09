@@ -1,6 +1,6 @@
 # ① Memory Interop and C++ abstract interfaces
 
-Intel® DL Streamer provides independent sub-components for zero-copy
+Deep Learning Streamer provides independent sub-components for zero-copy
 buffer sharing and memory interop between various frameworks and memory
 handles on CPU and GPU:
 

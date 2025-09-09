@@ -1,6 +1,6 @@
 # ② C++ elements
 
-Intel® DL Streamer C++ interface allows for developing new functional blocks
+Deep Learning Streamer C++ interface allows for developing new functional blocks
 (source, transform and sink elements) with minimal effort. The interface
 does not use any GStreamer types, so elements/blocks written in this
 interface can be used in both GStreamer-based and non-GStreamer
